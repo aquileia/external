@@ -1,0 +1,12 @@
+prefix=c:/devel/target/dcf0541c8b6477df7ce7ef2a62ffb6d6
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: cairo-ps
+Description: PostScript surface backend for cairo graphics library
+Version: 1.8.8
+
+Requires: cairo 
+Libs: -lz
+Cflags: -I${includedir}/cairo 
