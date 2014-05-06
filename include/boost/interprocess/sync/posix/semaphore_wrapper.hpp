@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -35,7 +35,6 @@
 #include <boost/interprocess/sync/posix/ptime_to_timespec.hpp>
 #else
 #include <boost/interprocess/detail/os_thread_functions.hpp>
-#include <boost/interprocess/sync/spin/wait.hpp>
 #endif
 
 namespace boost {
@@ -104,7 +103,7 @@ inline bool semaphore_open
 inline void semaphore_close(sem_t *handle)
 {
    int ret = sem_close(handle);
-   if(ret != 0){
+   if(ret != 0){ 
       BOOST_ASSERT(0);
    }
 }
@@ -139,7 +138,7 @@ inline void semaphore_init(sem_t *handle, unsigned int initialCount)
 inline void semaphore_destroy(sem_t *handle)
 {
    int ret = sem_destroy(handle);
-   if(ret != 0){
+   if(ret != 0){ 
       BOOST_ASSERT(0);
    }
 }
@@ -196,11 +195,10 @@ inline bool semaphore_timed_wait(sem_t *handle, const boost::posix_time::ptime &
    return false;
    #else //#ifdef BOOST_INTERPROCESS_POSIX_TIMEOUTS
    boost::posix_time::ptime now;
-   spin_wait swait;
    do{
       if(semaphore_try_wait(handle))
          return true;
-      swait.yield();
+      thread_yield();
    }while((now = microsec_clock::universal_time()) < abs_time);
    return false;
    #endif   //#ifdef BOOST_INTERPROCESS_POSIX_TIMEOUTS

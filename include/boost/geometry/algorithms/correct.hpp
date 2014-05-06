@@ -40,12 +40,6 @@
 namespace boost { namespace geometry
 {
 
-// Silence warning C4127: conditional expression is constant
-#if defined(_MSC_VER)
-#pragma warning(push)  
-#pragma warning(disable : 4127)
-#endif
-
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace correct
 {
@@ -125,8 +119,10 @@ struct correct_ring
 
     typedef detail::area::ring_area
             <
+                Ring,
                 order_as_direction<geometry::point_order<Ring>::value>::value,
-                geometry::closure<Ring>::value
+                geometry::closure<Ring>::value,
+                strategy_type
             > ring_area_type;
 
 
@@ -143,7 +139,7 @@ struct correct_ring
             {
                 geometry::append(r, *boost::begin(r));
             }
-            if (! disjoint && s != closed)
+            if (! disjoint && geometry::closure<Ring>::value != closed)
             {
                 // Open it by removing last point
                 geometry::traits::resize<Ring>::apply(r, boost::size(r) - 1);
@@ -262,9 +258,6 @@ inline void correct(Geometry& geometry)
     dispatch::correct<Geometry>::apply(geometry);
 }
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 }} // namespace boost::geometry
 

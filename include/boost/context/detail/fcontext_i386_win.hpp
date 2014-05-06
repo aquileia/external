@@ -4,14 +4,12 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_CONTEXT_DETAIL_FCONTEXT_I386H
-#define BOOST_CONTEXT_DETAIL_FCONTEXT_I386H
+#ifndef BOOST_CTX_DETAIL_FCONTEXT_I386H
+#define BOOST_CTX_DETAIL_FCONTEXT_I386H
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
 #endif
-
-#include <cstddef>
 
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
@@ -28,7 +26,7 @@
 #endif
 
 namespace boost {
-namespace context {
+namespace ctx {
 
 extern "C" {
 
@@ -36,12 +34,11 @@ extern "C" {
 
 struct stack_t
 {
-    void    *   sp;
-    std::size_t size;
+    void    *   base;
     void    *   limit;
 
     stack_t() :
-        sp( 0), size( 0), limit( 0)
+        base( 0), limit( 0)
     {}
 };
 
@@ -61,15 +58,13 @@ struct fcontext_t
     void            *   fc_excpt_lst;
     void            *   fc_local_storage;
     fp_t                fc_fp;
-    boost::uint32_t     fc_dealloc;
 
     fcontext_t() :
         fc_greg(),
         fc_stack(),
         fc_excpt_lst( 0),
         fc_local_storage( 0),
-        fc_fp(),
-        fc_dealloc( 0)
+        fc_fp()
     {}
 };
 
@@ -85,4 +80,4 @@ struct fcontext_t
 #pragma warning(pop)
 #endif
 
-#endif // BOOST_CONTEXT_DETAIL_FCONTEXT_I386_H
+#endif // BOOST_CTX_DETAIL_FCONTEXT_I386_H

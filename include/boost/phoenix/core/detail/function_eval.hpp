@@ -99,15 +99,11 @@ namespace boost { namespace phoenix {
 
         #define PHOENIX_GET_ARG(z, n, data)                                     \
             typedef                                                             \
-                typename boost::add_reference<                                  \
-                    typename boost::add_const<                                  \
-                        typename boost::result_of<                              \
-                            boost::phoenix::evaluator(                          \
-                                BOOST_PP_CAT(A, n)                              \
-                              , Context                                         \
-                            )                                                   \
-                        >::type                                                 \
-                    >::type                                                     \
+                typename boost::result_of<                                      \
+                    boost::phoenix::evaluator(                                                  \
+                        BOOST_PP_CAT(A, n)                                      \
+                      , Context                                                 \
+                    )                                                           \
                 >::type                                                         \
                 BOOST_PP_CAT(a, n);
 

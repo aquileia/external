@@ -18,9 +18,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/centroid.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 
 
@@ -37,9 +35,13 @@ namespace detail { namespace centroid
     \brief Building block of a multi-point, to be used as Policy in the
         more generec centroid_multi
 */
+template
+<
+    typename Point,
+    typename Strategy
+>
 struct centroid_multi_point_state
 {
-    template <typename Point, typename Strategy>
     static inline void apply(Point const& point,
             Strategy const& strategy, typename Strategy::state_type& state)
     {
@@ -57,10 +59,15 @@ struct centroid_multi_point_state
         detail::centroid::centroid_multi
 
 */
-template <typename Policy>
+template
+<
+    typename Multi,
+    typename Point,
+    typename Strategy,
+    typename Policy
+>
 struct centroid_multi
 {
-    template <typename Multi, typename Point, typename Strategy>
     static inline void apply(Multi const& multi, Point& centroid,
             Strategy const& strategy)
     {
@@ -97,28 +104,65 @@ struct centroid_multi
 namespace dispatch
 {
 
-template <typename MultiLinestring>
-struct centroid<MultiLinestring, multi_linestring_tag>
+template
+<
+    typename MultiLinestring,
+    typename Point,
+    typename Strategy
+>
+struct centroid<multi_linestring_tag, MultiLinestring, Point,  Strategy>
     : detail::centroid::centroid_multi
         <
-            detail::centroid::centroid_range_state<closed>
+            MultiLinestring,
+            Point,
+            Strategy,
+            detail::centroid::centroid_range_state
+                <
+                    typename boost::range_value<MultiLinestring>::type,
+                    closed,
+                    Strategy
+                >
         >
 {};
 
-template <typename MultiPolygon>
-struct centroid<MultiPolygon, multi_polygon_tag>
+template
+<
+    typename MultiPolygon,
+    typename Point,
+    typename Strategy
+>
+struct centroid<multi_polygon_tag, MultiPolygon, Point,  Strategy>
     : detail::centroid::centroid_multi
         <
+            MultiPolygon,
+            Point,
+            Strategy,
             detail::centroid::centroid_polygon_state
+                <
+                    typename boost::range_value<MultiPolygon>::type,
+                    Strategy
+                >
         >
 {};
 
 
-template <typename MultiPoint>
-struct centroid<MultiPoint, multi_point_tag>
+template
+<
+    typename MultiPoint,
+    typename Point,
+    typename Strategy
+>
+struct centroid<multi_point_tag, MultiPoint, Point,  Strategy>
     : detail::centroid::centroid_multi
         <
+            MultiPoint,
+            Point,
+            Strategy,
             detail::centroid::centroid_multi_point_state
+                <
+                    typename boost::range_value<MultiPoint>::type,
+                    Strategy
+                >
         >
 {};
 

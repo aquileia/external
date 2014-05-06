@@ -188,7 +188,6 @@ namespace boost {
 
   } // namespace detail
 
-  template <typename Selector> struct is_distributed_selector: mpl::false_ {};
 
 
   //===========================================================================

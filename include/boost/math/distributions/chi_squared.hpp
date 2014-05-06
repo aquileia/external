@@ -50,7 +50,7 @@ private:
    //
    // Data member:
    //
-   RealType m_df; // degrees of freedom is a positive real number.
+   RealType m_df;  // degrees of freedom are a real number.
 }; // class chi_squared_distribution
 
 typedef chi_squared_distribution<double> chi_squared;
@@ -58,15 +58,8 @@ typedef chi_squared_distribution<double> chi_squared;
 template <class RealType, class Policy>
 inline const std::pair<RealType, RealType> range(const chi_squared_distribution<RealType, Policy>& /*dist*/)
 { // Range of permissible values for random variable x.
-  if (std::numeric_limits<RealType>::has_infinity)
-  { 
-    return std::pair<RealType, RealType>(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()); // 0 to + infinity.
-  }
-  else
-  {
-    using boost::math::tools::max_value;
-    return std::pair<RealType, RealType>(static_cast<RealType>(0), max_value<RealType>()); // 0 to + max.
-  }
+   using boost::math::tools::max_value;
+   return std::pair<RealType, RealType>(static_cast<RealType>(0), max_value<RealType>()); // 0 to + infinity.
 }
 
 template <class RealType, class Policy>
@@ -145,12 +138,11 @@ inline RealType quantile(const chi_squared_distribution<RealType, Policy>& dist,
    static const char* function = "boost::math::quantile(const chi_squared_distribution<%1%>&, %1%)";
    // Error check:
    RealType error_result;
-   if(false ==
-     (
-       detail::check_df(function, degrees_of_freedom, &error_result, Policy())
-       && detail::check_probability(function, p, &error_result, Policy()))
-     )
-     return error_result;
+   if(false == detail::check_df(
+         function, degrees_of_freedom, &error_result, Policy())
+         && detail::check_probability(
+            function, p, &error_result, Policy()))
+      return error_result;
 
    return 2 * boost::math::gamma_p_inv(degrees_of_freedom / 2, p, Policy());
 } // quantile
@@ -184,11 +176,11 @@ inline RealType quantile(const complemented2_type<chi_squared_distribution<RealT
    static const char* function = "boost::math::quantile(const chi_squared_distribution<%1%>&, %1%)";
    // Error check:
    RealType error_result;
-   if(false == (
-     detail::check_df(function, degrees_of_freedom, &error_result, Policy())
-     && detail::check_probability(function, q, &error_result, Policy()))
-     )
-    return error_result;
+   if(false == detail::check_df(
+         function, degrees_of_freedom, &error_result, Policy())
+         && detail::check_probability(
+            function, q, &error_result, Policy()))
+      return error_result;
 
    return 2 * boost::math::gamma_q_inv(degrees_of_freedom / 2, q, Policy());
 }

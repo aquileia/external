@@ -12,7 +12,7 @@ namespace boost { namespace phoenix
 {
     struct lambda_eval
     {
-        BOOST_PROTO_CALLABLE()
+        typedef void proto_is_callable_;
         template <typename Sig>
         struct result;
         template <
@@ -131,7 +131,7 @@ namespace boost { namespace phoenix
                     )
                 >
               , proto::make<
-                    proto::empty_env()
+                    int()
                 >
             )
         >
@@ -163,7 +163,7 @@ namespace boost { namespace phoenix
                                 evaluator(
                                     proto::_
                                   , _context
-                                  , proto::make<proto::empty_env()>
+                                  , proto::make<int()>
                                 )
                             >
                         >()
@@ -217,9 +217,9 @@ namespace boost { namespace phoenix
           , typename Context
         >
         typename result<
-            lambda_actor_eval(Vars const&, Map const &, Lambda const&, Context const &)
+            lambda_actor_eval(Vars const&, Map const &, Lambda const&, Context &)
         >::type const
-        operator()(Vars const& vars, Map const& map, Lambda const& lambda, Context const & ctx) const
+        operator()(Vars const& vars, Map const& map, Lambda const& lambda, Context & ctx) const
         {
             typedef
                 typename proto::detail::uncvref<
@@ -252,7 +252,7 @@ namespace boost { namespace phoenix
             return
                 expression::
                     lambda<env_type, locals_type, Map, Lambda>::
-                        make(phoenix::env(ctx), locals, map, lambda);
+                        make(env(ctx), locals, map, lambda);
         }
     };
     template <typename Dummy>

@@ -17,26 +17,22 @@
 #ifndef BOOST_CONTAINER_ALLOCATOR_ALLOCATOR_TRAITS_HPP
 #define BOOST_CONTAINER_ALLOCATOR_ALLOCATOR_TRAITS_HPP
 
-#if defined(_MSC_VER)
+#if (defined _MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
 #endif
 
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/detail/workaround.hpp>
-#include <boost/container/container_fwd.hpp>
 #include <boost/intrusive/pointer_traits.hpp>
 #include <boost/intrusive/detail/memory_util.hpp>
 #include <boost/container/detail/memory_util.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/container/detail/mpl.hpp>
-#include <boost/move/utility.hpp>
+#include <boost/move/move.hpp>
 #include <limits> //numeric_limits<>::max()
 #include <new>    //placement new
 #include <memory> //std::allocator
-
-#if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
 #include <boost/container/detail/preprocessor.hpp>
-#endif
 
 ///@cond
 
@@ -74,41 +70,41 @@ struct allocator_traits
       typedef unspecified pointer;
       //! Alloc::const_pointer if such a type exists ; otherwise, pointer_traits<pointer>::rebind<const
       //!
-      typedef see_documentation const_pointer;
+      typedef unspecified const_pointer;
       //! Non-standard extension
       //! Alloc::reference if such a type exists; otherwise, value_type&
-      typedef see_documentation reference;
+      typedef unspecified reference;
       //! Non-standard extension
       //! Alloc::const_reference if such a type exists ; otherwise, const value_type&
-      typedef see_documentation const_reference;
+      typedef unspecified const_reference;
       //! Alloc::void_pointer if such a type exists ; otherwise, pointer_traits<pointer>::rebind<void>.
       //!
-      typedef see_documentation void_pointer;
+      typedef unspecified void_pointer;
       //! Alloc::const_void_pointer if such a type exists ; otherwis e, pointer_traits<pointer>::rebind<const
       //!
-      typedef see_documentation const_void_pointer;
+      typedef unspecified const_void_pointer;
       //! Alloc::difference_type if such a type exists ; otherwise, pointer_traits<pointer>::difference_type.
       //!
-      typedef see_documentation difference_type;
+      typedef unspecified difference_type;
       //! Alloc::size_type if such a type exists ; otherwise, make_unsigned<difference_type>::type
       //!
-      typedef see_documentation size_type;
+      typedef unspecified size_type;
       //! Alloc::propagate_on_container_copy_assignment if such a type exists, otherwise an integral_constant
       //! type with internal constant static member `value` == false.
-      typedef see_documentation propagate_on_container_copy_assignment;
+      typedef unspecified propagate_on_container_copy_assignment;
       //! Alloc::propagate_on_container_move_assignment if such a type exists, otherwise an integral_constant
       //! type with internal constant static member `value` == false.
-      typedef see_documentation propagate_on_container_move_assignment;
+      typedef unspecified propagate_on_container_move_assignment;
       //! Alloc::propagate_on_container_swap if such a type exists, otherwise an integral_constant
       //! type with internal constant static member `value` == false.
-      typedef see_documentation propagate_on_container_swap;
+      typedef unspecified propagate_on_container_swap;
       //! Defines an allocator: Alloc::rebind<T>::other if such a type exists; otherwise, Alloc<T, Args>
       //! if Alloc is a class template instantiation of the form Alloc<U, Args>, where Args is zero or
       //! more type arguments ; otherwise, the instantiation of rebind_alloc is ill-formed.
       //!
       //! In C++03 compilers `rebind_alloc` is a struct derived from an allocator
       //! deduced by previously detailed rules.
-      template <class T> using rebind_alloc = see_documentation;
+      template <class T> using rebind_alloc = unspecified;
 
       //! In C++03 compilers `rebind_traits` is a struct derived from
       //! `allocator_traits<OtherAlloc>`, where `OtherAlloc` is
@@ -119,7 +115,7 @@ struct allocator_traits
       //! `type` is an allocator related to Alloc deduced deduced by rules explained in `rebind_alloc`.
       template <class T>
       struct portable_rebind_alloc
-      {  typedef see_documentation type;  };
+      {  typedef unspecified_type type;  };
    #else
       //pointer
       typedef BOOST_INTRUSIVE_OBTAIN_TYPE_WITH_DEFAULT(boost::container::container_detail::, Alloc,
@@ -169,22 +165,22 @@ struct allocator_traits
          propagate_on_container_swap, boost::false_type)
             propagate_on_container_swap;
 
-      #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+      #if !defined(BOOST_NO_TEMPLATE_ALIASES)
          //C++11
          template <typename T> using rebind_alloc  = typename boost::intrusive::detail::type_rebinder<Alloc, T>::type;
          template <typename T> using rebind_traits = allocator_traits< rebind_alloc<T> >;
-      #else    // #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+      #else    // #if !defined(BOOST_NO_TEMPLATE_ALIASES)
          //Some workaround for C++03 or C++11 compilers with no template aliases
          template <typename T>
          struct rebind_alloc : boost::intrusive::detail::type_rebinder<Alloc,T>::type
          {
             typedef typename boost::intrusive::detail::type_rebinder<Alloc,T>::type Base;
-            #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+            #if !defined(BOOST_NO_VARIADIC_TEMPLATES)
             template <typename... Args>
             rebind_alloc(BOOST_FWD_REF(Args)... args)
                : Base(boost::forward<Args>(args)...)
             {}
-            #else    // #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+            #else    // #if !defined(BOOST_NO_VARIADIC_TEMPLATES)
             #define BOOST_PP_LOCAL_MACRO(n)                                                        \
             BOOST_PP_EXPR_IF(n, template<) BOOST_PP_ENUM_PARAMS(n, class P) BOOST_PP_EXPR_IF(n, >) \
             rebind_alloc(BOOST_PP_ENUM(n, BOOST_CONTAINER_PP_PARAM_LIST, _))                       \
@@ -193,14 +189,14 @@ struct allocator_traits
             //
             #define BOOST_PP_LOCAL_LIMITS (0, BOOST_CONTAINER_MAX_CONSTRUCTOR_PARAMETERS)
             #include BOOST_PP_LOCAL_ITERATE()
-            #endif   // #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+            #endif   // #if !defined(BOOST_NO_VARIADIC_TEMPLATES)
          };
 
          template <typename T>
          struct rebind_traits
             : allocator_traits<typename boost::intrusive::detail::type_rebinder<Alloc, T>::type>
          {};
-      #endif   // #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+      #endif   // #if !defined(BOOST_NO_TEMPLATE_ALIASES)
       template <class T>
       struct portable_rebind_alloc
       {  typedef typename boost::intrusive::detail::type_rebinder<Alloc, T>::type type;  };
@@ -215,7 +211,7 @@ struct allocator_traits
    //!
    //! <b>Throws</b>: Nothing
    static void deallocate(Alloc &a, pointer p, size_type n)
-   {  a.deallocate(p, n);  }
+   {  return a.deallocate(p, n);  }
 
    //! <b>Effects</b>: calls `a.allocate(n, p)` if that call is well-formed;
    //! otherwise, invokes `a.allocate(n)`
@@ -254,19 +250,7 @@ struct allocator_traits
 
    //! <b>Returns</b>: `a.select_on_container_copy_construction()` if that expression is well-formed;
    //! otherwise, a.
-   static
-   #if !defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
-   typename container_detail::if_c
-      <  boost::container::container_detail::
-                  has_member_function_callable_with_select_on_container_copy_construction
-                     <const Alloc>::value
-      , Alloc
-      , const Alloc &
-      >::type
-   #else
-   Alloc
-   #endif
-   select_on_container_copy_construction(const Alloc &a)
+   static Alloc select_on_container_copy_construction(const Alloc &a)
    {
       const bool value = boost::container::container_detail::
          has_member_function_callable_with_select_on_container_copy_construction
@@ -275,7 +259,7 @@ struct allocator_traits
       return allocator_traits::priv_select_on_container_copy_construction(flag, a);
    }
 
-   #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
+   #if !defined(BOOST_NO_VARIADIC_TEMPLATES) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
       //! <b>Effects</b>: calls `a.construct(p, std::forward<Args>(args)...)` if that call is well-formed;
       //! otherwise, invokes `::new (static_cast<void*>(p)) T(std::forward<Args>(args)...)`
       template <class T, class ...Args>
@@ -311,10 +295,10 @@ struct allocator_traits
       static Alloc priv_select_on_container_copy_construction(boost::true_type, const Alloc &a)
       {  return a.select_on_container_copy_construction();  }
 
-      static const Alloc &priv_select_on_container_copy_construction(boost::false_type, const Alloc &a)
+      static Alloc priv_select_on_container_copy_construction(boost::false_type, const Alloc &a)
       {  return a;  }
 
-      #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+      #if !defined(BOOST_NO_VARIADIC_TEMPLATES)
          template<class T, class ...Args>
          static void priv_construct(boost::false_type, Alloc &a, T *p, BOOST_FWD_REF(Args) ...args)                   
          {                                                                                                 
@@ -338,7 +322,7 @@ struct allocator_traits
          template<class T, class ...Args>
          static void priv_construct_dispatch2(boost::false_type, Alloc &, T *p, BOOST_FWD_REF(Args) ...args)
          {  ::new((void*)p) T(::boost::forward<Args>(args)...); }
-      #else // #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+      #else // #if !defined(BOOST_NO_VARIADIC_TEMPLATES)
          public:
          #define BOOST_PP_LOCAL_MACRO(n)                                                              \
          template<class T BOOST_PP_ENUM_TRAILING_PARAMS(n, class P) >                                 \
@@ -387,11 +371,7 @@ struct allocator_traits
          //
          #define BOOST_PP_LOCAL_LIMITS (0, BOOST_CONTAINER_MAX_CONSTRUCTOR_PARAMETERS)
          #include BOOST_PP_LOCAL_ITERATE()
-      #endif   // #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-
-      template<class T>
-      static void priv_construct_dispatch2(boost::false_type, Alloc &, T *p, ::boost::container::default_init_t)
-      {  ::new((void*)p) T; }
+      #endif   // #if !defined(BOOST_NO_VARIADIC_TEMPLATES)
    #endif   //#if defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
 
    ///@endcond

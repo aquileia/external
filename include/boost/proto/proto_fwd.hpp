@@ -25,7 +25,6 @@
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/mpl/aux_/config/ttp.hpp>
-#include <boost/utility/result_of.hpp>
 
 #ifndef BOOST_PROTO_MAX_ARITY
 # define BOOST_PROTO_MAX_ARITY 10
@@ -93,12 +92,17 @@
 # endif
 #endif
 
-#ifdef BOOST_NO_CXX11_DECLTYPE_N3276
+#ifndef BOOST_NO_DECLTYPE_N3276
 # // Proto can only use the decltype-based result_of if N3276 has been
 # // implemented by the compiler.
 # // See http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2011/n3276.pdf
 # ifndef BOOST_PROTO_USE_NORMAL_RESULT_OF
 #  define BOOST_PROTO_USE_NORMAL_RESULT_OF
+# endif
+# // If we're using the decltype-based result_of, we need to be a bit
+# // stricter about the return types of some functions.
+# ifndef BOOST_PROTO_STRICT_RESULT_OF
+#  define BOOST_PROTO_STRICT_RESULT_OF
 # endif
 #endif
 
@@ -108,15 +112,6 @@
 # define BOOST_PROTO_RESULT_OF boost::result_of
 #else
 # define BOOST_PROTO_RESULT_OF boost::tr1_result_of
-#endif
-
-// If we're using the decltype-based result_of, we need to be a bit
-// stricter about the return types of some functions.
-#if defined(BOOST_RESULT_OF_USE_DECLTYPE) && defined(BOOST_PROTO_USE_NORMAL_RESULT_OF)
-# define BOOST_PROTO_STRICT_RESULT_OF
-# define BOOST_PROTO_RETURN_TYPE_STRICT_LOOSE(X, Y) X
-#else
-# define BOOST_PROTO_RETURN_TYPE_STRICT_LOOSE(X, Y) Y
 #endif
 
 #ifdef BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING
@@ -222,9 +217,6 @@ namespace boost { namespace proto
 
         template<typename T, typename Void = void>
         struct is_aggregate_;
-
-        template<typename Expr>
-        struct flat_view;
     }
 
     typedef detail::ignore const ignore;
@@ -299,9 +291,9 @@ namespace boost { namespace proto
             struct function;
 
             // Fusion tags
-            template<typename Tag, typename Domain> struct proto_expr;
-            template<typename Tag, typename Domain> struct proto_expr_iterator;
-            template<typename Tag, typename Domain> struct proto_flat_view;
+            struct proto_expr;
+            struct proto_expr_iterator;
+            struct proto_flat_view;
         }
     }
 
@@ -493,14 +485,6 @@ namespace boost { namespace proto
         template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename Void = void>
         struct unpack_expr;
 
-        template<typename T>
-        struct as_env;
-
-        template<typename Env, typename Tag>
-        struct has_env_var;
-
-        template<typename Env, typename Tag>
-        struct env_var;
     }
 
     template<typename T, typename Void = void>
@@ -511,9 +495,6 @@ namespace boost { namespace proto
 
     template<typename SubDomain, typename SuperDomain>
     struct is_sub_domain_of;
-
-    template<typename T, typename Void = void>
-    struct is_env;
 
     template<typename Expr>
     struct arity_of;
@@ -606,14 +587,6 @@ namespace boost { namespace proto
 
         template<long N>
         struct child_c;
-
-        struct as_env;
-
-        template<typename Tag>
-        struct has_env_var;
-
-        template<typename Tag>
-        struct env_var;
 
         template<typename Tag, typename Domain = deduce_domain>
         struct make_expr;
@@ -757,29 +730,6 @@ namespace boost { namespace proto
         BOOST_PROTO_CALLABLE()
     };
 
-    namespace envns_
-    {
-        struct key_not_found;
-
-        struct empty_env;
-
-        typedef int empty_state;
-
-        template<typename Tag, typename Value, typename Base = empty_env>
-        struct env;
-
-        struct data_type;
-
-        struct transforms_type;
-    }
-
-    using envns_::key_not_found;
-    using envns_::empty_env;
-    using envns_::empty_state;
-    using envns_::env;
-    using envns_::data_type;
-    using envns_::transforms_type;
-
     struct external_transform;
 
     template<typename PrimitiveTransform = void, typename X = void>
@@ -820,7 +770,7 @@ namespace boost { namespace proto
     template<typename Sequence, typename State, typename Fun>
     struct reverse_fold_tree;
 
-    template<typename Grammar, typename Domain = deduce_domain>
+    template<typename Grammar>
     struct pass_through;
 
     template<typename Grammar = detail::_default>
@@ -871,13 +821,11 @@ namespace boost { namespace proto
     struct _byref;
     struct _byval;
 
-    template<typename Tag>
-    struct _env_var;
-
-    struct _env;
-
     template<typename T>
     struct is_extension;
+
+    //namespace exops
+    //{}
 
     namespace exops = exprns_;
 

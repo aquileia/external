@@ -32,9 +32,9 @@ namespace detail { namespace reverse
 {
 
 
+template <typename Range>
 struct range_reverse
 {
-    template <typename Range>
     static inline void apply(Range& range)
     {
         std::reverse(boost::begin(range), boost::end(range));
@@ -42,20 +42,21 @@ struct range_reverse
 };
 
 
-struct polygon_reverse: private range_reverse
+template <typename Polygon>
+struct polygon_reverse
 {
-    template <typename Polygon>
     static inline void apply(Polygon& polygon)
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
 
-        range_reverse::apply(exterior_ring(polygon));
+        typedef range_reverse<ring_type> per_range;
+        per_range::apply(exterior_ring(polygon));
 
         typename interior_return_type<Polygon>::type rings
                     = interior_rings(polygon);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
-            range_reverse::apply(*it);
+            per_range::apply(*it);
         }
     }
 };
@@ -70,7 +71,11 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template
+<
+    typename Tag,
+    typename Geometry
+>
 struct reverse
 {
     static inline void apply(Geometry&)
@@ -79,20 +84,20 @@ struct reverse
 
 
 template <typename Ring>
-struct reverse<Ring, ring_tag>
-    : detail::reverse::range_reverse
+struct reverse<ring_tag, Ring>
+    : detail::reverse::range_reverse<Ring>
 {};
 
 
 template <typename LineString>
-struct reverse<LineString, linestring_tag>
-    : detail::reverse::range_reverse
+struct reverse<linestring_tag, LineString>
+    : detail::reverse::range_reverse<LineString>
 {};
 
 
 template <typename Polygon>
-struct reverse<Polygon, polygon_tag>
-    : detail::reverse::polygon_reverse
+struct reverse<polygon_tag, Polygon>
+    : detail::reverse::polygon_reverse<Polygon>
 {};
 
 
@@ -116,7 +121,11 @@ inline void reverse(Geometry& geometry)
 {
     concept::check<Geometry>();
 
-    dispatch::reverse<Geometry>::apply(geometry);
+    dispatch::reverse
+        <
+            typename tag<Geometry>::type,
+            Geometry
+        >::apply(geometry);
 }
 
 }} // namespace boost::geometry

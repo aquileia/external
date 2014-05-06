@@ -206,10 +206,8 @@ namespace boost { namespace xpressive { namespace detail
         result_type search(BidiIter &begin, BidiIter end, Trans trans, node* p) const
         {
             result_type r = 0;
-            #ifdef BOOST_DISABLE_THREADS
             node* p2 = p;
             bool left = false;
-            #endif
             char_type c1 = (begin != end ? trans(*begin) : 0);
             while(p)
             {
@@ -247,18 +245,14 @@ namespace boost { namespace xpressive { namespace detail
                 }
                 else if(c1 < p->ch)
                 {
-                    #ifdef BOOST_DISABLE_THREADS
                     left = true;
                     p2 = p;
-                    #endif
                     p = p->lo;
                 }
                 else // (c1 > p->ch)
                 {
-                    #ifdef BOOST_DISABLE_THREADS
                     left = false;
                     p2 = p;
-                    #endif
                     p = p->hi;
                 }
             }

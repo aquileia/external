@@ -18,10 +18,6 @@
 
 #include <boost/geometry/geometries/box.hpp>
 
-#ifdef BOOST_GEOMETRY_TIME_OVERLAY
-#  include <boost/timer.hpp>
-#endif
-
 
 namespace boost { namespace geometry
 {

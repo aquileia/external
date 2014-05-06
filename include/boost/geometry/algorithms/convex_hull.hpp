@@ -40,13 +40,18 @@ namespace boost { namespace geometry
 namespace detail { namespace convex_hull
 {
 
-template <order_selector Order>
+template
+<
+    typename Geometry,
+    order_selector Order,
+    typename Strategy
+>
 struct hull_insert
 {
 
     // Member template function (to avoid inconvenient declaration
     // of output-iterator-type, from hull_to_geometry)
-    template <typename Geometry, typename OutputIterator, typename Strategy>
+    template <typename OutputIterator>
     static inline OutputIterator apply(Geometry const& geometry,
             OutputIterator out, Strategy const& strategy)
     {
@@ -58,15 +63,22 @@ struct hull_insert
     }
 };
 
+template
+<
+    typename Geometry,
+    typename Strategy
+>
 struct hull_to_geometry
 {
-    template <typename Geometry, typename OutputGeometry, typename Strategy>
+    template <typename OutputGeometry>
     static inline void apply(Geometry const& geometry, OutputGeometry& out,
             Strategy const& strategy)
     {
         hull_insert
             <
-                geometry::point_order<OutputGeometry>::value
+                Geometry,
+                geometry::point_order<OutputGeometry>::value,
+                Strategy
             >::apply(geometry,
                 std::back_inserter(
                     // Handle linestring, ring and polygon the same:
@@ -101,16 +113,21 @@ namespace dispatch
 template
 <
     typename Geometry,
+    typename Strategy = typename detail::convex_hull::default_strategy<Geometry>::type,
     typename Tag = typename tag<Geometry>::type
 >
 struct convex_hull
-    : detail::convex_hull::hull_to_geometry
+    : detail::convex_hull::hull_to_geometry<Geometry, Strategy>
 {};
 
-template <typename Box>
-struct convex_hull<Box, box_tag>
+template
+<
+    typename Box,
+    typename Strategy
+>
+struct convex_hull<Box, Strategy, box_tag>
 {
-    template <typename OutputGeometry, typename Strategy>
+    template <typename OutputGeometry>
     static inline void apply(Box const& box, OutputGeometry& out,
             Strategy const& )
     {
@@ -132,9 +149,13 @@ struct convex_hull<Box, box_tag>
 
 
 
-template <order_selector Order>
+template
+<
+    order_selector Order,
+    typename Geometry, typename Strategy
+>
 struct convex_hull_insert
-    : detail::convex_hull::hull_insert<Order>
+    : detail::convex_hull::hull_insert<Geometry, Order, Strategy>
 {};
 
 
@@ -160,7 +181,11 @@ inline void convex_hull(Geometry const& geometry,
         return;
     }
 
-    dispatch::convex_hull<Geometry>::apply(geometry, out, strategy);
+    dispatch::convex_hull
+        <
+            Geometry,
+            Strategy
+        >::apply(geometry, out, strategy);
 }
 
 
@@ -168,8 +193,8 @@ inline void convex_hull(Geometry const& geometry,
 \brief \brief_calc{convex hull}
 \ingroup convex_hull
 \details \details_calc{convex_hull,convex hull}.
-\tparam Geometry the input geometry type
-\tparam OutputGeometry the output geometry type
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
 \param geometry \param_geometry,  input geometry
 \param hull \param_geometry \param_set{convex hull}
 
@@ -207,7 +232,8 @@ inline OutputIterator convex_hull_insert(Geometry const& geometry,
 
     return dispatch::convex_hull_insert
         <
-            geometry::point_order<Geometry>::value
+            geometry::point_order<Geometry>::value,
+            Geometry, Strategy
         >::apply(geometry, out, strategy);
 }
 

@@ -20,7 +20,6 @@
 
 
 #include <boost/geometry/algorithms/clear.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -76,23 +75,15 @@ inline void buffer_box(BoxIn const& box_in, T const& distance, BoxOut& box_out)
 namespace dispatch
 {
 
-template
-<
-    typename Input,
-    typename Output,
-    typename TagIn = typename tag<Input>::type,
-    typename TagOut = typename tag<Output>::type
->
-struct buffer: not_implemented<TagIn, TagOut>
-{};
+template <typename TagIn, typename TagOut, typename Input, typename T, typename Output>
+struct buffer {};
 
 
-template <typename BoxIn, typename BoxOut>
-struct buffer<BoxIn, BoxOut, box_tag, box_tag>
+template <typename BoxIn, typename T, typename BoxOut>
+struct buffer<box_tag, box_tag, BoxIn, T, BoxOut>
 {
-    template <typename Distance>
-    static inline void apply(BoxIn const& box_in, Distance const& distance,
-                Distance const& , BoxIn& box_out)
+    static inline void apply(BoxIn const& box_in, T const& distance,
+                T const& , BoxIn& box_out)
     {
         detail::buffer::buffer_box(box_in, distance, box_out);
     }
@@ -131,7 +122,10 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 
     dispatch::buffer
         <
+            typename tag<Input>::type,
+            typename tag<Output>::type,
             Input,
+            Distance,
             Output
         >::apply(geometry_in, distance, chord_length, geometry_out);
 }
@@ -145,12 +139,11 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 \tparam Distance \tparam_numeric
 \param geometry \param_geometry
 \param distance The distance to be used for the buffer
-\param chord_length (optional) The length of the chord's in the generated arcs
-    around points or bends
+\param chord_length (optional) The length of the chord's in the generated arcs around points or bends
 \return \return_calc{buffer}
  */
-template <typename Output, typename Input, typename Distance>
-Output return_buffer(Input const& geometry, Distance const& distance, Distance const& chord_length = -1)
+template <typename Output, typename Input, typename T>
+Output return_buffer(Input const& geometry, T const& distance, T const& chord_length = -1)
 {
     concept::check<Input const>();
     concept::check<Output>();
@@ -159,7 +152,10 @@ Output return_buffer(Input const& geometry, Distance const& distance, Distance c
 
     dispatch::buffer
         <
+            typename tag<Input>::type,
+            typename tag<Output>::type,
             Input,
+            T,
             Output
         >::apply(geometry, distance, chord_length, geometry_out);
 

@@ -21,8 +21,6 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/num_geometries.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
 
 
 namespace boost { namespace geometry
@@ -34,7 +32,7 @@ namespace dispatch
 {
 
 template <typename MultiGeometry>
-struct num_geometries<MultiGeometry, multi_tag>
+struct num_geometries<multi_tag, MultiGeometry>
 {
     static inline std::size_t apply(MultiGeometry const& multi_geometry)
     {

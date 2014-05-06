@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // (C) Copyright Olaf Krzikalla 2004-2006.
-// (C) Copyright Ion Gaztanaga  2006-2013
+// (C) Copyright Ion Gaztanaga  2006-2012
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -18,7 +18,6 @@
 #include <boost/intrusive/intrusive_fwd.hpp>
 #include <boost/intrusive/detail/common_slist_algorithms.hpp>
 #include <boost/intrusive/detail/assert.hpp>
-#include <boost/intrusive/detail/utilities.hpp>
 #include <cstddef>
 
 namespace boost {
@@ -173,17 +172,18 @@ class circular_slist_algorithms
    static node_ptr get_previous_previous_node(const node_ptr & this_node)
    {  return get_previous_previous_node(this_node, this_node); }
 
-   //! <b>Requires</b>: this_node and p must be in the same circular list.
+   //! <b>Requires</b>: this_node and prev_prev_init_node must be in the same circular list.
    //!
    //! <b>Effects</b>: Returns the previous node of the previous node of this_node in the
-   //!   circular list starting. the search from p. The first node checked
-   //!   for equality is NodeTraits::get_next((NodeTraits::get_next(p)).
+   //!   circular list starting. the search from prev_init_node. The first node checked
+   //!   for equality is NodeTraits::get_next((NodeTraits::get_next(prev_prev_init_node)).
    //!
    //! <b>Complexity</b>: Linear to the number of elements in the circular list.
    //!
    //! <b>Throws</b>: Nothing.
-   static node_ptr get_previous_previous_node(node_ptr p, const node_ptr & this_node)
+   static node_ptr get_previous_previous_node(const node_ptr & prev_prev_init_node, const node_ptr & this_node)
    {
+      node_ptr p = prev_prev_init_node;
       node_ptr p_next = NodeTraits::get_next(p);
       node_ptr p_next_next = NodeTraits::get_next(p_next);
       while (this_node != p_next_next){
@@ -396,16 +396,6 @@ class circular_slist_algorithms
       return new_last;
    }
 };
-
-/// @cond
-
-template<class NodeTraits>
-struct get_algo<CircularSListAlgorithms, NodeTraits>
-{
-   typedef circular_slist_algorithms<NodeTraits> type;
-};
-
-/// @endcond
 
 } //namespace intrusive
 } //namespace boost

@@ -174,7 +174,7 @@ namespace boost { namespace phoenix
                                 evaluator(
                                     proto::_
                                   , _context
-                                  , proto::make<proto::empty_env()>
+                                  , proto::make<int()>
                                 )
                             >
                         >()
@@ -193,7 +193,7 @@ namespace boost { namespace phoenix
                         )
                     >
                   , proto::make<
-                        proto::empty_env()
+                        int()
                     >
                 )
             >()

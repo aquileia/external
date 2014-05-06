@@ -24,6 +24,7 @@ namespace boost  {
 namespace heap   {
 namespace detail {
 
+
 template<bool ConstantSize, class SizeType>
 struct size_holder
 {
@@ -34,7 +35,7 @@ struct size_holder
         size_(0)
     {}
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifdef BOOST_HAS_RVALUE_REFS
     size_holder(size_holder && rhs):
         size_(rhs.size_)
     {
@@ -92,7 +93,7 @@ struct size_holder<false, SizeType>
     size_holder(void)
     {}
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifdef BOOST_HAS_RVALUE_REFS
     size_holder(size_holder && rhs)
     {}
 
@@ -132,8 +133,6 @@ struct size_holder<false, SizeType>
     {}
 };
 
-// note: MSVC does not implement lookup correctly, we therefore have to place the Cmp object as member inside the
-//       struct. of course, this prevents EBO and significantly reduces the readability of this code
 template <typename T,
           typename Cmp,
           bool constant_time_size,
@@ -141,9 +140,7 @@ template <typename T,
           bool stable = false
          >
 struct heap_base:
-#ifndef BOOST_MSVC
     Cmp,
-#endif
     size_holder<constant_time_size, size_t>
 {
     typedef StabilityCounterType stability_counter_type;
@@ -154,47 +151,31 @@ struct heap_base:
     typedef Cmp internal_compare;
     static const bool is_stable = stable;
 
-#ifdef BOOST_MSVC
-    Cmp cmp_;
-#endif
-
     heap_base (Cmp const & cmp = Cmp()):
-#ifndef BOOST_MSVC
         Cmp(cmp)
-#else
-        cmp_(cmp)
-#endif
     {}
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifdef BOOST_HAS_RVALUE_REFS
     heap_base(heap_base && rhs):
-#ifndef BOOST_MSVC
         Cmp(std::move(static_cast<Cmp&>(rhs))),
-#else
-        cmp_(std::move(rhs.cmp_)),
-#endif
         size_holder_type(std::move(static_cast<size_holder_type&>(rhs)))
     {}
 
     heap_base(heap_base const & rhs):
-#ifndef BOOST_MSVC
         Cmp(static_cast<Cmp const &>(rhs)),
-#else
-        cmp_(rhs.value_comp()),
-#endif
         size_holder_type(static_cast<size_holder_type const &>(rhs))
     {}
 
     heap_base & operator=(heap_base && rhs)
     {
-        value_comp_ref().operator=(std::move(rhs.value_comp_ref()));
+        Cmp::operator=(std::move(static_cast<Cmp&>(rhs)));
         size_holder_type::operator=(std::move(static_cast<size_holder_type&>(rhs)));
         return *this;
     }
 
     heap_base & operator=(heap_base const & rhs)
     {
-        value_comp_ref().operator=(rhs.value_comp());
+        Cmp::operator=(static_cast<Cmp const &>(rhs));
         size_holder_type::operator=(static_cast<size_holder_type const &>(rhs));
         return *this;
     }
@@ -202,7 +183,7 @@ struct heap_base:
 
     bool operator()(internal_type const & lhs, internal_type const & rhs) const
     {
-        return value_comp().operator()(lhs, rhs);
+        return Cmp::operator()(lhs, rhs);
     }
 
     internal_type make_node(T const & val)
@@ -210,18 +191,10 @@ struct heap_base:
         return val;
     }
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifdef BOOST_HAS_RVALUE_REFS
     T && make_node(T && val)
     {
         return std::forward<T>(val);
-    }
-#endif
-
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-    template <class... Args>
-    internal_type make_node(Args && ... val)
-    {
-        return internal_type(std::forward<Args>(val)...);
     }
 #endif
 
@@ -237,21 +210,17 @@ struct heap_base:
 
     Cmp const & value_comp(void) const
     {
-#ifndef BOOST_MSVC
         return *this;
-#else
-        return cmp_;
-#endif
     }
 
     Cmp const & get_internal_cmp(void) const
     {
-        return value_comp();
+        return *this;
     }
 
     void swap(heap_base & rhs)
     {
-        std::swap(value_comp_ref(), rhs.value_comp_ref());
+        std::swap(static_cast<Cmp&>(*this), static_cast<Cmp&>(rhs));
         size_holder<constant_time_size, size_t>::swap(rhs);
     }
 
@@ -265,18 +234,7 @@ struct heap_base:
 
     template <typename Heap1, typename Heap2>
     friend struct heap_merge_emulate;
-
-private:
-    Cmp & value_comp_ref(void)
-    {
-#ifndef BOOST_MSVC
-        return *this;
-#else
-        return cmp_;
-#endif
-    }
 };
-
 
 template <typename T,
           typename Cmp,
@@ -284,71 +242,35 @@ template <typename T,
           typename StabilityCounterType
          >
 struct heap_base<T, Cmp, constant_time_size, StabilityCounterType, true>:
-#ifndef BOOST_MSVC
     Cmp,
-#endif
     size_holder<constant_time_size, size_t>
 {
     typedef StabilityCounterType stability_counter_type;
     typedef T value_type;
-
-    struct internal_type
-    {
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-        template <class ...Args>
-        internal_type(stability_counter_type cnt, Args && ... args):
-            first(std::forward<Args>(args)...), second(cnt)
-        {}
-#endif
-
-        internal_type(stability_counter_type const & cnt, T const & value):
-            first(value), second(cnt)
-        {}
-
-        T first;
-        stability_counter_type second;
-    };
-
+    typedef std::pair<T, stability_counter_type> internal_type;
     typedef size_holder<constant_time_size, size_t> size_holder_type;
     typedef Cmp value_compare;
 
-#ifdef BOOST_MSVC
-    Cmp cmp_;
-#endif
-
     heap_base (Cmp const & cmp = Cmp()):
-#ifndef BOOST_MSVC
-        Cmp(cmp),
-#else
-        cmp_(cmp),
-#endif
-        counter_(0)
+        Cmp(cmp), counter_(0)
     {}
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifdef BOOST_HAS_RVALUE_REFS
     heap_base(heap_base && rhs):
-#ifndef BOOST_MSVC
         Cmp(std::move(static_cast<Cmp&>(rhs))),
-#else
-        cmp_(std::move(rhs.cmp_)),
-#endif
         size_holder_type(std::move(static_cast<size_holder_type&>(rhs))), counter_(rhs.counter_)
     {
         rhs.counter_ = 0;
     }
 
-    heap_base(heap_base const & rhs):
-#ifndef BOOST_MSVC
-        Cmp(static_cast<Cmp const&>(rhs)),
-#else
-        cmp_(rhs.value_comp()),
-#endif
-        size_holder_type(static_cast<size_holder_type const &>(rhs)), counter_(rhs.counter_)
+    heap_base(heap_base & rhs):
+        Cmp(static_cast<Cmp&>(rhs)),
+        size_holder_type(static_cast<size_holder_type&>(rhs)), counter_(rhs.counter_)
     {}
 
     heap_base & operator=(heap_base && rhs)
     {
-        value_comp_ref().operator=(std::move(rhs.value_comp_ref()));
+        Cmp::operator=(std::move(static_cast<Cmp&>(rhs)));
         size_holder_type::operator=(std::move(static_cast<size_holder_type&>(rhs)));
 
         counter_ = rhs.counter_;
@@ -358,40 +280,42 @@ struct heap_base<T, Cmp, constant_time_size, StabilityCounterType, true>:
 
     heap_base & operator=(heap_base const & rhs)
     {
-        value_comp_ref().operator=(rhs.value_comp());
+        Cmp::operator=(static_cast<Cmp const &>(rhs));
         size_holder_type::operator=(static_cast<size_holder_type const &>(rhs));
 
         counter_ = rhs.counter_;
         return *this;
     }
+
 #endif
 
     bool operator()(internal_type const & lhs, internal_type const & rhs) const
     {
-        return get_internal_cmp()(lhs, rhs);
+        internal_compare cmp(get_internal_cmp());
+        return cmp(lhs, rhs);
     }
 
     bool operator()(T const & lhs, T const & rhs) const
     {
-        return value_comp()(lhs, rhs);
+        return Cmp::operator()(lhs, rhs);
     }
 
     internal_type make_node(T const & val)
     {
         stability_counter_type count = ++counter_;
-        if (counter_ == (std::numeric_limits<stability_counter_type>::max)())
+        if (counter_ == std::numeric_limits<stability_counter_type>::max())
             BOOST_THROW_EXCEPTION(std::runtime_error("boost::heap counter overflow"));
-        return internal_type(count, val);
+        return std::make_pair(val, count);
     }
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
     template <class... Args>
     internal_type make_node(Args&&... args)
     {
         stability_counter_type count = ++counter_;
-        if (counter_ == (std::numeric_limits<stability_counter_type>::max)())
+        if (counter_ == std::numeric_limits<stability_counter_type>::max())
             BOOST_THROW_EXCEPTION(std::runtime_error("boost::heap counter overflow"));
-        return internal_type (count, std::forward<Args>(args)...);
+        return std::make_pair(std::forward<T>(args)..., count);
     }
 #endif
 
@@ -407,11 +331,7 @@ struct heap_base<T, Cmp, constant_time_size, StabilityCounterType, true>:
 
     Cmp const & value_comp(void) const
     {
-#ifndef BOOST_MSVC
         return *this;
-#else
-        return cmp_;
-#endif
     }
 
     struct internal_compare:
@@ -435,16 +355,12 @@ struct heap_base<T, Cmp, constant_time_size, StabilityCounterType, true>:
 
     internal_compare get_internal_cmp(void) const
     {
-        return internal_compare(value_comp());
+        return internal_compare(*this);
     }
 
     void swap(heap_base & rhs)
     {
-#ifndef BOOST_MSVC
         std::swap(static_cast<Cmp&>(*this), static_cast<Cmp&>(rhs));
-#else
-        std::swap(cmp_, rhs.cmp_);
-#endif
         std::swap(counter_, rhs.counter_);
         size_holder<constant_time_size, size_t>::swap(rhs);
     }
@@ -463,15 +379,6 @@ struct heap_base<T, Cmp, constant_time_size, StabilityCounterType, true>:
     friend struct heap_merge_emulate;
 
 private:
-    Cmp & value_comp_ref(void)
-    {
-#ifndef BOOST_MSVC
-        return *this;
-#else
-        return cmp_;
-#endif
-    }
-
     stability_counter_type counter_;
 };
 
@@ -488,16 +395,6 @@ struct node_handle
     reference operator*() const
     {
         return extractor::get_value(node_->value);
-    }
-
-    bool operator==(node_handle const & rhs) const
-    {
-        return node_ == rhs.node_;
-    }
-
-    bool operator!=(node_handle const & rhs) const
-    {
-        return node_ != rhs.node_;
     }
 
     node_pointer node_;

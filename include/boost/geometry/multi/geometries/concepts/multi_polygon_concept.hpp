@@ -52,11 +52,6 @@ public :
 
     BOOST_CONCEPT_USAGE(MultiPolygon)
     {
-        Geometry* mp = 0;
-        traits::clear<Geometry>::apply(*mp);
-        traits::resize<Geometry>::apply(*mp, 0);
-        polygon_type* poly = 0;
-        traits::push_back<Geometry>::apply(*mp, *poly);
     }
 #endif
 };

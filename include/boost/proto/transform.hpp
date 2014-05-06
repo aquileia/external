@@ -12,7 +12,6 @@
 #include <boost/proto/transform/arg.hpp>
 #include <boost/proto/transform/call.hpp>
 #include <boost/proto/transform/default.hpp>
-#include <boost/proto/transform/env.hpp>
 #include <boost/proto/transform/fold.hpp>
 #include <boost/proto/transform/fold_tree.hpp>
 #include <boost/proto/transform/integral_c.hpp>

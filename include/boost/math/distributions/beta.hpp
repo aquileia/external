@@ -156,7 +156,7 @@ namespace boost
       typedef RealType value_type;
       typedef Policy policy_type;
 
-      beta_distribution(RealType l_alpha = 1, RealType l_beta = 1) : m_alpha(l_alpha), m_beta(l_beta)
+      beta_distribution(RealType alpha = 1, RealType beta = 1) : m_alpha(alpha), m_beta(beta)
       {
         RealType result;
         beta_detail::check_dist(
@@ -189,10 +189,11 @@ namespace boost
         static const char* function = "boost::math::beta_distribution<%1%>::find_alpha";
         RealType result = 0; // of error checks.
         if(false ==
-            (
-              beta_detail::check_mean(function, mean, &result, Policy())
-              && beta_detail::check_variance(function, variance, &result, Policy())
-            )
+          beta_detail::check_mean(
+          function, mean, &result, Policy())
+          &&
+          beta_detail::check_variance(
+          function, variance, &result, Policy())
           )
         {
           return result;
@@ -207,11 +208,11 @@ namespace boost
         static const char* function = "boost::math::beta_distribution<%1%>::find_beta";
         RealType result = 0; // of error checks.
         if(false ==
-            (
-              beta_detail::check_mean(function, mean, &result, Policy())
-              &&
-              beta_detail::check_variance(function, variance, &result, Policy())
-            )
+          beta_detail::check_mean(
+          function, mean, &result, Policy())
+          &&
+          beta_detail::check_variance(
+          function, variance, &result, Policy())
           )
         {
           return result;
@@ -230,13 +231,14 @@ namespace boost
         static const char* function = "boost::math::beta_distribution<%1%>::find_alpha";
         RealType result = 0; // of error checks.
         if(false ==
-            (
-             beta_detail::check_prob(function, probability, &result, Policy())
-             &&
-             beta_detail::check_beta(function, beta, &result, Policy())
-             &&
-             beta_detail::check_x(function, x, &result, Policy())
-            )
+          beta_detail::check_prob(
+          function, probability, &result, Policy())
+          &&
+          beta_detail::check_beta(
+          function, beta, &result, Policy())
+          &&
+          beta_detail::check_x(
+          function, x, &result, Policy())
           )
         {
           return result;
@@ -253,13 +255,14 @@ namespace boost
         static const char* function = "boost::math::beta_distribution<%1%>::find_beta";
         RealType result = 0; // of error checks.
         if(false ==
-            (
-              beta_detail::check_prob(function, probability, &result, Policy())
-              &&
-              beta_detail::check_alpha(function, alpha, &result, Policy())
-              &&
-              beta_detail::check_x(function, x, &result, Policy())
-            )
+          beta_detail::check_prob(
+          function, probability, &result, Policy())
+          &&
+          beta_detail::check_alpha(
+          function, alpha, &result, Policy())
+          &&
+          beta_detail::check_x(
+          function, x, &result, Policy())
           )
         {
           return result;

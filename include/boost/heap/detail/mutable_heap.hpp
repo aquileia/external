@@ -16,6 +16,7 @@
 #include <list>
 #include <utility>
 
+#include <boost/noncopyable.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/heap/detail/ordered_adaptor_iterator.hpp>
 
@@ -67,13 +68,19 @@ private:
         q_.set_stability_count(new_count);
     }
 
+    template <typename value_type>
     struct index_updater
     {
         template <typename It>
-        static void run(It & it, size_type new_index)
+        void operator()(It & it, size_type new_index)
         {
             q_type::get_value(it)->second = new_index;
         }
+
+        template <typename U>
+        struct rebind {
+            typedef index_updater<U> other;
+        };
     };
 
 public:
@@ -90,16 +97,6 @@ public:
         handle_type(handle_type const & rhs):
             iterator(rhs.iterator)
         {}
-
-        bool operator==(handle_type const & rhs) const
-        {
-            return iterator == rhs.iterator;
-        }
-
-        bool operator!=(handle_type const & rhs) const
-        {
-            return iterator != rhs.iterator;
-        }
 
     private:
         explicit handle_type(list_iterator const & it):
@@ -127,7 +124,7 @@ private:
 
     typedef typename PriorityQueueType::template rebind<list_iterator,
                                                         indirect_cmp,
-                                                        allocator_type, index_updater >::other q_type;
+                                                        allocator_type, index_updater<list_iterator> >::other q_type;
 
 protected:
     q_type q_;
@@ -139,7 +136,7 @@ protected:
     {}
 
     priority_queue_mutable_wrapper(priority_queue_mutable_wrapper const & rhs):
-        q_(rhs.q_), objects(rhs.objects)
+        objects(rhs.objects)
     {
         for (typename object_list::iterator it = objects.begin(); it != objects.end(); ++it)
             q_.push(it);
@@ -147,7 +144,6 @@ protected:
 
     priority_queue_mutable_wrapper & operator=(priority_queue_mutable_wrapper const & rhs)
     {
-        q_ = rhs.q_;
         objects = rhs.objects;
         q_.clear();
         for (typename object_list::iterator it = objects.begin(); it != objects.end(); ++it)
@@ -155,7 +151,7 @@ protected:
         return *this;
     }
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifdef BOOST_HAS_RVALUE_REFS
     priority_queue_mutable_wrapper (priority_queue_mutable_wrapper && rhs):
         q_(std::move(rhs.q_))
     {
@@ -348,7 +344,7 @@ public:
         return handle_type(ret);
     }
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
     template <class... Args>
     handle_type emplace(Args&&... args)
     {
@@ -368,6 +364,20 @@ public:
     }
 
     /**
+     * \b Effects: Merge with priority queue rhs.
+     *
+     * \b Complexity: N log(N)
+     *
+     * */
+    void merge(priority_queue_mutable_wrapper const & rhs)
+    {
+        q_.reserve(q_.size() + rhs.q_.size());
+
+        for (typename object_list::const_iterator it = rhs.objects.begin(); it != rhs.objects.end(); ++it)
+            push(it->first);
+    }
+
+    /**
      * \b Effects: Assigns \c v to the element handled by \c handle & updates the priority queue.
      *
      * \b Complexity: Logarithmic.
@@ -377,7 +387,7 @@ public:
     {
         list_iterator it = handle.iterator;
         value_type const & current_value = it->first;
-        value_compare const & cmp = q_.value_comp();
+        value_compare const & cmp = q_;
         if (cmp(v, current_value))
             decrease(handle, v);
         else

@@ -9,8 +9,6 @@
 #include <boost/thread/detail/config.hpp>
 #include <boost/thread/detail/delete.hpp>
 
-#if defined BOOST_THREAD_PROVIDES_INTERRUPTIONS
-
 namespace boost
 {
     namespace this_thread
@@ -35,5 +33,4 @@ namespace boost
     }
 }
 
-#endif // BOOST_THREAD_PROVIDES_INTERRUPTIONS
-#endif // header
+#endif

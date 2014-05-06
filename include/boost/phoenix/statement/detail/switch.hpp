@@ -85,7 +85,7 @@
             template <typename Context, typename Cond, typename Cases>
             result_type
             evaluate(
-                Context const & ctx
+                Context & ctx
               , Cond const & cond
               , Cases const & cases
               , mpl::int_<BOOST_PHOENIX_ITERATION>
@@ -117,7 +117,7 @@
             template <typename Context, typename Cond, typename Cases>
             result_type
             evaluate(
-                Context const & ctx
+                Context & ctx
               , Cond const & cond
               , Cases const & cases
               , mpl::int_<BOOST_PHOENIX_ITERATION>

@@ -101,7 +101,7 @@ public :
 
         // Make bad output clean
         rings.resize(size_at_start);
-        geometry::traits::clear<typename boost::range_value<Rings>::type>::apply(ring);
+        ring.clear();
 
         // Reject this as a starting point
         operation.visited.set_rejected();

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -35,7 +35,7 @@
 #include <boost/interprocess/detail/workaround.hpp>
 
 #include <pthread.h>
-#include <errno.h>
+#include <errno.h>  
 #include <boost/interprocess/exceptions.hpp>
 #include <boost/interprocess/sync/posix/ptime_to_timespec.hpp>
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
@@ -44,7 +44,6 @@
 
 #ifndef BOOST_INTERPROCESS_POSIX_TIMEOUTS
 #  include <boost/interprocess/detail/os_thread_functions.hpp>
-#  include <boost/interprocess/sync/spin/wait.hpp>
 #endif
 #include <boost/assert.hpp>
 
@@ -120,7 +119,6 @@ inline bool posix_mutex::timed_lock(const boost::posix_time::ptime &abs_time)
    //Obtain current count and target time
    boost::posix_time::ptime now = microsec_clock::universal_time();
 
-   spin_wait swait;
    do{
       if(this->try_lock()){
          break;
@@ -131,7 +129,7 @@ inline bool posix_mutex::timed_lock(const boost::posix_time::ptime &abs_time)
          return false;
       }
       // relinquish current time slice
-      swait.yield();
+     thread_yield();
    }while (true);
    return true;
 
@@ -142,7 +140,6 @@ inline void posix_mutex::unlock()
 {
    int res = 0;
    res = pthread_mutex_unlock(&m_mut);
-   (void)res;
    BOOST_ASSERT(res == 0);
 }
 

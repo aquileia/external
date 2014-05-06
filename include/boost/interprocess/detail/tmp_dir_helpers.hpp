@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2007-2012. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2007-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -58,7 +58,7 @@ namespace ipcdetail {
          struct ::timeval result;
          std::size_t result_len = sizeof result;
 
-         if (::sysctl (request, 2, &result, &result_len, 0, 0) < 0)
+         if (::sysctl (request, 2, &result, &result_len, NULL, 0) < 0)
             return;
 
          char bootstamp_str[256];

@@ -16,7 +16,7 @@
                 evaluator::impl<                                                \
                     BOOST_PP_CAT(A, N)                                          \
                   , Context                                                     \
-                  , proto::empty_env                                            \
+                  , int                                                         \
                 >::result_type                                                  \
                 BOOST_PP_CAT(child, N);                                         \
         /**/

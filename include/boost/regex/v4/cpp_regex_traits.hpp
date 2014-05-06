@@ -20,7 +20,6 @@
 #define BOOST_CPP_REGEX_TRAITS_HPP_INCLUDED
 
 #include <boost/config.hpp>
-#include <boost/integer.hpp>
 
 #ifndef BOOST_NO_STD_LOCALE
 
@@ -108,14 +107,12 @@ template<class charT, class traits>
 typename parser_buf<charT, traits>::pos_type
 parser_buf<charT, traits>::seekoff(off_type off, ::std::ios_base::seekdir way, ::std::ios_base::openmode which)
 {
-   typedef typename boost::int_t<sizeof(way) * CHAR_BIT>::least cast_type;
-
    if(which & ::std::ios_base::out)
       return pos_type(off_type(-1));
    std::ptrdiff_t size = this->egptr() - this->eback();
    std::ptrdiff_t pos = this->gptr() - this->eback();
    charT* g = this->eback();
-   switch(static_cast<cast_type>(way))
+   switch(way)
    {
    case ::std::ios_base::beg:
       if((off < 0) || (off > size))

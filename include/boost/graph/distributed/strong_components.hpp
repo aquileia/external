@@ -70,6 +70,8 @@ void
 marshal_set( std::vector<std::vector<typename graph_traits<Graph>::vertex_descriptor> > in,
              std::vector<typename graph_traits<Graph>::vertex_descriptor>& out )
 {
+  typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+
   for( std::size_t i = 0; i < in.size(); ++i ) {
     out.insert( out.end(), graph_traits<Graph>::null_vertex() );
     out.insert( out.end(), in[i].begin(), in[i].end() );
@@ -83,6 +85,7 @@ unmarshal_set( std::vector<typename graph_traits<Graph>::vertex_descriptor> in,
                std::vector<std::vector<typename graph_traits<Graph>::vertex_descriptor> >& out )
 {
   typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+  typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
 
   while( !in.empty() ) {
     typename std::vector<vertex_descriptor>::iterator end 
@@ -729,6 +732,8 @@ namespace boost { namespace graph { namespace distributed {
       typedef typename process_group_type::process_id_type process_id_type;
       typedef std::vector<std::pair<vertex_descriptor, vertex_descriptor> > VertexPairVec;
 
+      typedef typename graph_traits<Graph>::directed_category directed_category;
+
       typename property_map<Graph, vertex_owner_t>::const_type
         owner = get(vertex_owner, g);
 
@@ -857,6 +862,7 @@ namespace boost { namespace graph { namespace distributed {
        VertexIndexMap vertex_index_map,
        incidence_graph_tag)
     {
+      typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
       typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
       typedef iterator_property_map<typename std::vector<vertex_descriptor>::iterator,
                                     VertexIndexMap> IsoMap;

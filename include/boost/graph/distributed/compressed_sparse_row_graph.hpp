@@ -537,6 +537,7 @@ out_degree(typename BOOST_DISTRIB_CSR_GRAPH_TYPE::vertex_descriptor u,
 template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS>
 void synchronize(const BOOST_DISTRIB_CSR_GRAPH_TYPE& g)
 {
+  typedef BOOST_DISTRIB_CSR_GRAPH_TYPE graph_type;
   synchronize(g.process_group());
 }
 

@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // (C) Copyright Olaf Krzikalla 2004-2006.
-// (C) Copyright Ion Gaztanaga  2006-2013
+// (C) Copyright Ion Gaztanaga  2006-2012
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -14,37 +14,49 @@
 #define BOOST_INTRUSIVE_SPLAY_SET_HOOK_HPP
 
 #include <boost/intrusive/detail/config_begin.hpp>
-#include <boost/intrusive/bs_set_hook.hpp>
+#include <boost/intrusive/intrusive_fwd.hpp>
+#include <boost/intrusive/detail/utilities.hpp>
+#include <boost/intrusive/detail/tree_node.hpp>
+#include <boost/intrusive/splaytree_algorithms.hpp>
+#include <boost/intrusive/options.hpp>
+#include <boost/intrusive/detail/generic_hook.hpp>
 
 namespace boost {
 namespace intrusive {
 
+/// @cond
+template<class VoidPointer>
+struct get_splay_set_node_algo
+{
+   typedef splaytree_algorithms<tree_node_traits<VoidPointer> > type;
+};
+/// @endcond
+
 //! Helper metafunction to define a \c splay_set_base_hook that yields to the same
 //! type when the same options (either explicitly or implicitly) are used.
-//! <b>WARNING: </b> Deprecated class, use `make_bs_set_base_hook` instead.
 #if defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED) || defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
 template<class ...Options>
 #else
-template<class O1 = void, class O2 = void, class O3 = void>
+template<class O1 = none, class O2 = none, class O3 = none>
 #endif
 struct make_splay_set_base_hook
-#if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
-   #if defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
-   : public make_bs_set_base_hook<Options...>
-   #else
-   : public make_bs_set_base_hook<O1, O2, O3>
-   #endif
-#endif
 {
    /// @cond
-   typedef typename make_bs_set_base_hook
-      <
+   typedef typename pack_options
+      < hook_defaults,
          #if !defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
          O1, O2, O3
          #else
          Options...
          #endif
-      >::type implementation_defined;
+      >::type packed_options;
+
+   typedef detail::generic_hook
+   < get_splay_set_node_algo<typename packed_options::void_pointer>
+   , typename packed_options::tag
+   , packed_options::link_mode
+   , detail::SplaySetBaseHook
+   > implementation_defined;
    /// @endcond
    typedef implementation_defined type;
 };
@@ -66,8 +78,6 @@ struct make_splay_set_base_hook
 //!
 //! \c link_mode<> will specify the linking mode of the hook (\c normal_link,
 //! \c auto_unlink or \c safe_link).
-//!
-//! <b>WARNING: </b> Deprecated class, use `bs_set_base_hook` instead.
 #if defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED) || defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
 template<class ...Options>
 #else
@@ -152,31 +162,29 @@ class splay_set_base_hook
 
 //! Helper metafunction to define a \c splay_set_member_hook that yields to the same
 //! type when the same options (either explicitly or implicitly) are used.
-//!
-//! <b>WARNING: </b> Deprecated class, use `make_bs_set_member_hook` instead.
 #if defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED) || defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
 template<class ...Options>
 #else
-template<class O1 = void, class O2 = void, class O3 = void>
+template<class O1 = none, class O2 = none, class O3 = none>
 #endif
 struct make_splay_set_member_hook
-#if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
-   #if defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
-   : public make_bs_set_member_hook<Options...>
-   #else
-   : public make_bs_set_member_hook<O1, O2, O3>
-   #endif
-#endif
 {
    /// @cond
-   typedef typename make_bs_set_member_hook
-      <
+   typedef typename pack_options
+      < hook_defaults,
          #if !defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
          O1, O2, O3
          #else
          Options...
          #endif
-      >::type implementation_defined;
+      >::type packed_options;
+
+   typedef detail::generic_hook
+   < get_splay_set_node_algo<typename packed_options::void_pointer>
+   , member_tag
+   , packed_options::link_mode
+   , detail::NoBaseHook
+   > implementation_defined;
    /// @endcond
    typedef implementation_defined type;
 };
@@ -194,8 +202,6 @@ struct make_splay_set_member_hook
 //!
 //! \c link_mode<> will specify the linking mode of the hook (\c normal_link,
 //! \c auto_unlink or \c safe_link).
-//!
-//! <b>WARNING: </b> Deprecated class, use `bs_set_member_hook` instead.
 #if defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED) || defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
 template<class ...Options>
 #else

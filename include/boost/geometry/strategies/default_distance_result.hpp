@@ -39,9 +39,7 @@ struct default_distance_result
                     point_tag,
                     typename point_type<Geometry1>::type,
                     typename point_type<Geometry2>::type
-                >::type,
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type
+                >::type
         >::type type;
 };
 

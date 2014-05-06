@@ -4,15 +4,14 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_CONTEXT_DETAIL_FCONTEXT_X86_64_H
-#define BOOST_CONTEXT_DETAIL_FCONTEXT_X86_64_H
+#ifndef BOOST_CTX_DETAIL_FCONTEXT_X86_64_H
+#define BOOST_CTX_DETAIL_FCONTEXT_X86_64_H
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
 #endif
 
-#include <cstddef>
-
+#include <boost/assert.hpp>
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 
@@ -28,7 +27,7 @@
 #endif
 
 namespace boost {
-namespace context {
+namespace ctx {
 
 extern "C" {
 
@@ -36,13 +35,29 @@ extern "C" {
 
 struct stack_t
 {
-    void    *   sp;
-    std::size_t size;
+    void    *   base;
     void    *   limit;
 
     stack_t() :
-        sp( 0), size( 0), limit( 0)
+        base( 0), limit( 0)
     {}
+};
+
+struct fp_t
+{
+    boost::uint32_t     fc_freg[2];
+    void            *   fc_xmm;
+    char                fc_buffer[175];
+
+    fp_t() :
+        fc_freg(),
+        fc_xmm( 0),
+        fc_buffer()
+    {
+        fc_xmm = fc_buffer;
+        if ( 0 != ( ( ( uintptr_t) fc_xmm) & 15) )
+            fc_xmm = ( char *) ( ( ( ( uintptr_t) fc_xmm) + 15) & ~0x0F);
+    }
 };
 
 struct fcontext_t
@@ -50,15 +65,13 @@ struct fcontext_t
     boost::uint64_t     fc_greg[10];
     stack_t             fc_stack;
     void            *   fc_local_storage;
-    boost::uint64_t     fc_fp[24];
-    boost::uint64_t     fc_dealloc;
+    fp_t                fc_fp;
 
     fcontext_t() :
         fc_greg(),
         fc_stack(),
         fc_local_storage( 0),
-        fc_fp(),
-        fc_dealloc()
+        fc_fp()
     {}
 };
 
@@ -74,4 +87,4 @@ struct fcontext_t
 #pragma warning(pop)
 #endif
 
-#endif // BOOST_CONTEXT_DETAIL_FCONTEXT_X86_64_H
+#endif // BOOST_CTX_DETAIL_FCONTEXT_X86_64_H

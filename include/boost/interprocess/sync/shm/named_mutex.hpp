@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -100,15 +100,14 @@ class shm_named_mutex
    static bool remove(const char *name);
 
    /// @cond
-   typedef interprocess_mutex internal_mutex_type;
-   interprocess_mutex &internal_mutex()
-   {  return *static_cast<interprocess_mutex*>(m_shmem.get_user_address()); }
+   interprocess_mutex *mutex() const
+   {  return static_cast<interprocess_mutex*>(m_shmem.get_user_address()); }
 
    private:
    friend class ipcdetail::interprocess_tester;
    void dont_close_on_destruction();
-   typedef ipcdetail::managed_open_or_create_impl<shared_memory_object, 0, true, false> open_create_impl_t;
-   open_create_impl_t m_shmem;
+
+   ipcdetail::managed_open_or_create_impl<shared_memory_object> m_shmem;
    typedef ipcdetail::named_creation_functor<interprocess_mutex> construct_func_t;
    /// @endcond
 };
@@ -125,7 +124,8 @@ inline shm_named_mutex::shm_named_mutex(create_only_t, const char *name, const p
    :  m_shmem  (create_only
                ,name
                ,sizeof(interprocess_mutex) +
-                  open_create_impl_t::ManagedOpenOrCreateUserOffset
+                  ipcdetail::managed_open_or_create_impl<shared_memory_object>::
+                     ManagedOpenOrCreateUserOffset
                ,read_write
                ,0
                ,construct_func_t(ipcdetail::DoCreate)
@@ -136,7 +136,8 @@ inline shm_named_mutex::shm_named_mutex(open_or_create_t, const char *name, cons
    :  m_shmem  (open_or_create
                ,name
                ,sizeof(interprocess_mutex) +
-                  open_create_impl_t::ManagedOpenOrCreateUserOffset
+                  ipcdetail::managed_open_or_create_impl<shared_memory_object>::
+                     ManagedOpenOrCreateUserOffset
                ,read_write
                ,0
                ,construct_func_t(ipcdetail::DoOpenOrCreate)
@@ -152,13 +153,13 @@ inline shm_named_mutex::shm_named_mutex(open_only_t, const char *name)
 {}
 
 inline void shm_named_mutex::lock()
-{  this->internal_mutex().lock();  }
+{  this->mutex()->lock();  }
 
 inline void shm_named_mutex::unlock()
-{  this->internal_mutex().unlock();  }
+{  this->mutex()->unlock();  }
 
 inline bool shm_named_mutex::try_lock()
-{  return this->internal_mutex().try_lock();  }
+{  return this->mutex()->try_lock();  }
 
 inline bool shm_named_mutex::timed_lock(const boost::posix_time::ptime &abs_time)
 {
@@ -166,7 +167,7 @@ inline bool shm_named_mutex::timed_lock(const boost::posix_time::ptime &abs_time
       this->lock();
       return true;
    }
-   return this->internal_mutex().timed_lock(abs_time);
+   return this->mutex()->timed_lock(abs_time);
 }
 
 inline bool shm_named_mutex::remove(const char *name)

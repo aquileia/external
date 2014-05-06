@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // (C) Copyright Olaf Krzikalla 2004-2006.
-// (C) Copyright Ion Gaztanaga  2006-2013.
+// (C) Copyright Ion Gaztanaga  2006-2012.
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -20,8 +20,6 @@
 #include <boost/intrusive/rbtree_algorithms.hpp>
 #include <boost/intrusive/pointer_plus_bits.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
-#include <boost/intrusive/detail/utilities.hpp>
-#include <boost/intrusive/detail/tree_node.hpp>
 
 namespace boost {
 namespace intrusive {
@@ -70,37 +68,25 @@ struct default_rbtree_node_traits_impl
 
    typedef typename node::color color;
 
-   static node_ptr get_parent(const const_node_ptr & n)
-   {  return n->parent_;  }
-
-   static node_ptr get_parent(const node_ptr & n)
+   static const node_ptr & get_parent(const const_node_ptr & n)
    {  return n->parent_;  }
 
    static void set_parent(const node_ptr & n, const node_ptr & p)
    {  n->parent_ = p;  }
 
-   static node_ptr get_left(const const_node_ptr & n)
-   {  return n->left_;  }
-
-   static node_ptr get_left(const node_ptr & n)
+   static const node_ptr & get_left(const const_node_ptr & n)
    {  return n->left_;  }
 
    static void set_left(const node_ptr & n, const node_ptr & l)
    {  n->left_ = l;  }
 
-   static node_ptr get_right(const const_node_ptr & n)
-   {  return n->right_;  }
-
-   static node_ptr get_right(const node_ptr & n)
+   static const node_ptr & get_right(const const_node_ptr & n)
    {  return n->right_;  }
 
    static void set_right(const node_ptr & n, const node_ptr & r)
    {  n->right_ = r;  }
 
    static color get_color(const const_node_ptr & n)
-   {  return n->color_;  }
-
-   static color get_color(const node_ptr & n)
    {  return n->color_;  }
 
    static void set_color(const node_ptr & n, color c)
@@ -131,34 +117,22 @@ struct compact_rbtree_node_traits_impl
    static node_ptr get_parent(const const_node_ptr & n)
    {  return ptr_bit::get_pointer(n->parent_);  }
 
-   static node_ptr get_parent(const node_ptr & n)
-   {  return ptr_bit::get_pointer(n->parent_);  }
-
    static void set_parent(const node_ptr & n, const node_ptr & p)
    {  ptr_bit::set_pointer(n->parent_, p);  }
 
-   static node_ptr get_left(const const_node_ptr & n)
-   {  return n->left_;  }
-
-   static node_ptr get_left(const node_ptr & n)
+   static const node_ptr & get_left(const const_node_ptr & n)
    {  return n->left_;  }
 
    static void set_left(const node_ptr & n, const node_ptr & l)
    {  n->left_ = l;  }
 
-   static node_ptr get_right(const const_node_ptr & n)
-   {  return n->right_;  }
-
-   static node_ptr get_right(const node_ptr & n)
+   static const node_ptr & get_right(const const_node_ptr & n)
    {  return n->right_;  }
 
    static void set_right(const node_ptr & n, const node_ptr & r)
    {  n->right_ = r;  }
 
    static color get_color(const const_node_ptr & n)
-   {  return (color)ptr_bit::get_bits(n->parent_);  }
-
-   static color get_color(const node_ptr & n)
    {  return (color)ptr_bit::get_bits(n->parent_);  }
 
    static void set_color(const node_ptr & n, color c)

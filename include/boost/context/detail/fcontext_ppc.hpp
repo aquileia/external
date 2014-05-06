@@ -4,10 +4,8 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_CONTEXT_DETAIL_FCONTEXT_PPC_H
-#define BOOST_CONTEXT_DETAIL_FCONTEXT_PPC_H
-
-#include <cstddef>
+#ifndef BOOST_CTX_DETAIL_FCONTEXT_PPC_H
+#define BOOST_CTX_DETAIL_FCONTEXT_PPC_H
 
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
@@ -19,7 +17,7 @@
 #endif
 
 namespace boost {
-namespace context {
+namespace ctx {
 
 extern "C" {
 
@@ -27,11 +25,11 @@ extern "C" {
 
 struct stack_t
 {
-    void    *   sp;
-    std::size_t size;
+    void    *   base;
+    void    *   limit;
 
     stack_t() :
-        sp( 0), size( 0)
+        base( 0), limit( 0)
     {}
 };
 
@@ -69,4 +67,4 @@ struct fcontext_t
 # include BOOST_ABI_SUFFIX
 #endif
 
-#endif // BOOST_CONTEXT_DETAIL_FCONTEXT_PPC_H
+#endif // BOOST_CTX_DETAIL_FCONTEXT_PPC_H

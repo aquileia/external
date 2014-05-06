@@ -17,7 +17,6 @@
 
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
 
@@ -30,27 +29,33 @@ namespace dispatch
 {
 
 
-template <typename MultiPolygon1, typename MultiPolygon2, bool Reverse>
+template <typename MultiPolygon1, typename MultiPolygon2>
 struct equals
     <
-        MultiPolygon1, MultiPolygon2,
         multi_polygon_tag, multi_polygon_tag,
-        2,
-        Reverse
+        MultiPolygon1, MultiPolygon2,
+        2
     >
-    : detail::equals::equals_by_collection<detail::equals::area_check>
+    : detail::equals::equals_by_collection
+        <
+            MultiPolygon1, MultiPolygon2,
+            detail::equals::area_check
+        >
 {};
 
 
-template <typename Polygon, typename MultiPolygon, bool Reverse>
+template <typename Polygon, typename MultiPolygon>
 struct equals
     <
-        Polygon, MultiPolygon,
         polygon_tag, multi_polygon_tag,
-        2,
-        Reverse
+        Polygon, MultiPolygon,
+        2
     >
-    : detail::equals::equals_by_collection<detail::equals::area_check>
+    : detail::equals::equals_by_collection
+        <
+            Polygon, MultiPolygon,
+            detail::equals::area_check
+        >
 {};
 
 

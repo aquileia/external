@@ -1,6 +1,6 @@
  //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -65,8 +65,7 @@ class shm_named_semaphore
    interprocess_semaphore *semaphore() const
    {  return static_cast<interprocess_semaphore*>(m_shmem.get_user_address()); }
 
-   typedef ipcdetail::managed_open_or_create_impl<shared_memory_object, 0, true, false> open_create_impl_t;
-   open_create_impl_t m_shmem;
+   managed_open_or_create_impl<shared_memory_object> m_shmem;
    typedef named_creation_functor<interprocess_semaphore, int> construct_func_t;
    /// @endcond
 };
@@ -82,7 +81,8 @@ inline shm_named_semaphore::shm_named_semaphore
    :  m_shmem  (create_only
                ,name
                ,sizeof(interprocess_semaphore) +
-                  open_create_impl_t::ManagedOpenOrCreateUserOffset
+                  managed_open_or_create_impl<shared_memory_object>::
+                     ManagedOpenOrCreateUserOffset
                ,read_write
                ,0
                ,construct_func_t(DoCreate, initialCount)
@@ -94,7 +94,8 @@ inline shm_named_semaphore::shm_named_semaphore
    :  m_shmem  (open_or_create
                ,name
                ,sizeof(interprocess_semaphore) +
-                  open_create_impl_t::ManagedOpenOrCreateUserOffset
+                  managed_open_or_create_impl<shared_memory_object>::
+                     ManagedOpenOrCreateUserOffset
                ,read_write
                ,0
                ,construct_func_t(DoOpenOrCreate, initialCount)

@@ -9,9 +9,6 @@
 #define BOOST_PHOENIX_CORE_DOMAIN_HPP
 
 #include <boost/phoenix/core/limits.hpp>
-#include <boost/proto/matches.hpp>
-#include <boost/proto/transform/call.hpp>
-#include <boost/proto/transform/when.hpp>
 #include <boost/proto/domain.hpp>
 
 namespace boost { namespace phoenix
@@ -20,19 +17,10 @@ namespace boost { namespace phoenix
     struct actor;
     
     struct meta_grammar;
-
-    struct phoenix_generator
-        : proto::switch_<phoenix_generator>
-    {
-        template<typename Tag>
-        struct case_
-            : proto::otherwise<proto::call<proto::pod_generator<actor>(proto::_)> >
-        {};
-    };
-
+    
     struct phoenix_domain
         : proto::domain<
-            phoenix_generator
+            proto::pod_generator<actor>
           , meta_grammar
           , proto::basic_default_domain
         >

@@ -40,7 +40,7 @@ namespace boost { namespace phoenix
           , Cond const& cond
           , Step const& step
           , Do const& do_
-          , Context const & ctx
+          , Context & ctx
         ) const
         {
             for(boost::phoenix::eval(init, ctx); boost::phoenix::eval(cond, ctx); boost::phoenix::eval(step, ctx))

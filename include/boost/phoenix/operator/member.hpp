@@ -11,7 +11,6 @@
 #include <boost/phoenix/core/call.hpp>
 #include <boost/phoenix/operator/detail/mem_fun_ptr_gen.hpp>
 #include <boost/phoenix/support/iterate.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 #include <boost/type_traits/is_member_function_pointer.hpp>
 #include <boost/proto/operators.hpp>
 
@@ -43,21 +42,18 @@ namespace boost { namespace phoenix
 {
     BOOST_PHOENIX_BINARY_OPERATORS((mem_ptr))
 
-    template<>
-    struct phoenix_generator::case_<proto::tag::mem_ptr>
-      : proto::or_<
-            proto::when<
-                proto::and_<
-                    proto::mem_ptr<meta_grammar, proto::terminal<proto::_> >
-                  , proto::if_<is_member_function_pointer<boost::remove_reference<proto::call<proto::_value(proto::_right)> > >()>
-                >
-              , proto::call<detail::make_mem_fun_ptr_gen(proto::_left, proto::call<proto::_value(proto::_right)>)>
-            >
-          , proto::otherwise<
-                proto::call<proto::pod_generator<actor>(proto::_)>
-            >
-        >
-    {};
+    template <typename Object, typename MemPtr>
+    inline
+    typename boost::enable_if<
+        is_member_function_pointer<MemPtr>
+      , detail::mem_fun_ptr_gen<actor<Object>, MemPtr> const
+    >::type
+    operator->*(actor<Object> const& obj, MemPtr ptr)
+    {
+        return detail::mem_fun_ptr_gen<actor<Object>, MemPtr>(obj, ptr);
+    }
+
+    using proto::exprns_::operator->*;
 
     namespace result_of
     {
@@ -121,7 +117,7 @@ namespace boost { namespace phoenix
         typename result_of::mem_fun_ptr_eval<Context, BOOST_PHOENIX_A>::type
         operator()(
             BOOST_PHOENIX_A_const_ref_a
-          , Context const & ctx
+          , Context & ctx
         ) const
         {
             return

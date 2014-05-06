@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -114,7 +114,7 @@ enum error_code_t
    not_such_file_or_directory,
    invalid_argument,
    timeout_when_locking_error,
-   timeout_when_waiting_error
+   timeout_when_waiting_error,
 };
 
 typedef int    native_error_t;
@@ -183,7 +183,7 @@ static const ec_xlate ec_table[] =
 };
 
 inline error_code_t lookup_error(native_error_t err)
-{
+{ 
    const ec_xlate *cur  = &ec_table[0],
                   *end  = cur + sizeof(ec_table)/sizeof(ec_xlate);
    for  (;cur != end; ++cur ){

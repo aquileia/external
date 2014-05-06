@@ -20,7 +20,6 @@
 #include <boost/geometry/algorithms/transform.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
 
 namespace boost { namespace geometry
 {
@@ -32,10 +31,10 @@ namespace detail { namespace transform
 /*!
     \brief Is able to transform any multi-geometry, calling the single-version as policy
 */
-template <typename Policy>
+template <typename Multi1, typename Multi2, typename Policy>
 struct transform_multi
 {
-    template <typename Multi1, typename Multi2, typename S>
+    template <typename S>
     static inline bool apply(Multi1 const& multi1, Multi2& multi2, S const& strategy)
     {
         traits::resize<Multi2>::apply(multi2, boost::size(multi1));
@@ -66,18 +65,30 @@ struct transform_multi
 namespace dispatch
 {
 
-template <typename Multi1, typename Multi2>
+template <typename Multi1, typename Multi2, typename Strategy>
 struct transform
     <
+        multi_tag, multi_tag,
         Multi1, Multi2,
-        multi_tag, multi_tag
+        Strategy
     >
     : detail::transform::transform_multi
         <
+            Multi1,
+            Multi2,
             transform
                 <
+                    typename single_tag_of
+                                <
+                                    typename tag<Multi1>::type
+                                >::type,
+                    typename single_tag_of
+                                <
+                                    typename tag<Multi2>::type
+                                >::type,
                     typename boost::range_value<Multi1>::type,
-                    typename boost::range_value<Multi2>::type
+                    typename boost::range_value<Multi2>::type,
+                    Strategy
                 >
         >
 {};

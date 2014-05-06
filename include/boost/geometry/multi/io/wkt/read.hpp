@@ -19,7 +19,6 @@
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
 #include <boost/geometry/multi/io/wkt/detail/prefix.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
 
@@ -49,7 +48,7 @@ struct multi_parser
                 Parser
                     <
                         typename boost::range_value<MultiGeometry>::type
-                    >::apply(it, tokens.end(), wkt, *(boost::end(geometry) - 1));
+                    >::apply(it, tokens.end(), wkt, geometry.back());
                 if (it != tokens.end() && *it == ",")
                 {
                     // Skip "," after multi-element is parsed
@@ -101,14 +100,14 @@ struct multi_point_parser
                     point_parser
                         <
                             typename boost::range_value<MultiGeometry>::type
-                        >::apply(it, tokens.end(), wkt, *(boost::end(geometry) - 1));
+                        >::apply(it, tokens.end(), wkt, geometry.back());
                 }
                 else
                 {
                     noparenthesis_point_parser
                         <
                             typename boost::range_value<MultiGeometry>::type
-                        >::apply(it, tokens.end(), wkt, *(boost::end(geometry) - 1));
+                        >::apply(it, tokens.end(), wkt, geometry.back());
                 }
                     
                 if (it != tokens.end() && *it == ",")

@@ -120,10 +120,10 @@ inline bool include_left_turn_of_all(
 
     bool result = false;
     std::pair<segment_identifier, segment_identifier> pair = ordered_pair(outgoing_seg_id, incoming_seg_id);
-    typename boost::range_iterator<TurnSegmentIndices const>::type it = turn_segment_indices.find(pair);
+    auto it = turn_segment_indices.find(pair);
     if (it != turn_segment_indices.end())
     {
-        for (std::set<int>::const_iterator sit = it->second.begin(); sit != it->second.end(); ++sit)
+        for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
         {
             if (process_include(outgoing_seg_id, incoming_seg_id, *sit, turns[*sit], keep_indices, priority))
             {
@@ -148,17 +148,14 @@ inline bool prefer_by_other(Turns const& turns,
             std::set<int>& indices)
 {
     std::map<segment_identifier, int> map;
-    for (std::set<int>::const_iterator sit = indices.begin();
-        sit != indices.end();
-        ++sit)
+    for (auto sit = indices.begin(); sit != indices.end(); ++sit)
     {
         map[turns[*sit].operations[0].seg_id]++;
         map[turns[*sit].operations[1].seg_id]++;
     }
 
     std::set<segment_identifier> segment_occuring_once;
-    for (std::map<segment_identifier, int>::const_iterator mit = map.begin(); 
-        mit != map.end();++mit)
+    for (auto mit = map.begin(); mit != map.end(); ++mit)
     {
         if (mit->second == 1)
         {
@@ -179,14 +176,13 @@ inline bool prefer_by_other(Turns const& turns,
         segment_identifier back = *soo_it;
 
         std::pair<segment_identifier, segment_identifier> pair = ordered_pair(front, back);
-
-        typename boost::range_iterator<TurnSegmentIndices const>::type it = turn_segment_indices.find(pair);
+        auto it = turn_segment_indices.find(pair);
         if (it != turn_segment_indices.end())
         {
             // debug_turns_by_indices("Found", it->second);
             // Check which is the union/continue
             segment_identifier good;
-            for (std::set<int>::const_iterator sit = it->second.begin(); sit != it->second.end(); ++sit)
+            for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
             {
                 if (turns[*sit].operations[0].operation == detail::overlay::operation_union)
                 {
@@ -204,7 +200,7 @@ inline bool prefer_by_other(Turns const& turns,
 
             // Find in indexes-to-keep this segment with the union. Discard the other one
             std::set<int> ok_indices;
-            for (std::set<int>::const_iterator sit = indices.begin(); sit != indices.end(); ++sit)
+            for (auto sit = indices.begin(); sit != indices.end(); ++sit)
             {
                 if (corresponds<0>(turns[*sit], good) || corresponds<1>(turns[*sit], good))
                 {
@@ -227,7 +223,7 @@ inline void prefer_by_priority(Turns const& turns, std::set<int>& indices)
 {
     // Find max prio
     int min_prio = 1024, max_prio = 0;
-    for (std::set<int>::const_iterator sit = indices.begin(); sit != indices.end(); ++sit)
+    for (auto sit = indices.begin(); sit != indices.end(); ++sit)
     {
         if (turns[*sit].priority > max_prio)
         {
@@ -246,7 +242,7 @@ inline void prefer_by_priority(Turns const& turns, std::set<int>& indices)
 
     // Only keep indices with high prio
     std::set<int> ok_indices;
-    for (std::set<int>::const_iterator sit = indices.begin(); sit != indices.end(); ++sit)
+    for (auto sit = indices.begin(); sit != indices.end(); ++sit)
     {
         if (turns[*sit].priority >= max_prio)
         {

@@ -13,7 +13,7 @@
 #ifndef BOOST_CONTAINER_CONTAINER_DETAIL_PAIR_HPP
 #define BOOST_CONTAINER_CONTAINER_DETAIL_PAIR_HPP
 
-#if defined(_MSC_VER)
+#if (defined _MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
 #endif
 
@@ -26,9 +26,8 @@
 #include <boost/container/detail/type_traits.hpp>
 
 #include <utility>   //std::pair
-#include <algorithm> //std::swap
 
-#include <boost/move/utility.hpp>
+#include <boost/move/move.hpp>
 #include <boost/type_traits/is_class.hpp>
 
 #ifndef BOOST_CONTAINER_PERFECT_FORWARDING
@@ -337,7 +336,7 @@ struct is_class< ::boost::container::container_detail::pair<T1, T2> >
    : public ::boost::true_type
 {};
 
-#ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
+#ifdef BOOST_NO_RVALUE_REFERENCES
 
 template<class T1, class T2>
 struct has_move_emulation_enabled< ::boost::container::container_detail::pair<T1, T2> >

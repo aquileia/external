@@ -95,18 +95,18 @@ class winapi_semaphore_functions
 
    long value() const
    {
-      long l_count, l_limit;
-      if(!winapi::get_semaphore_info(m_sem_hnd, l_count, l_limit))
+      long count, limit;
+      if(!winapi::get_semaphore_info(m_sem_hnd, count, limit))
          return 0;
-      return l_count;
+      return count;
    }
 
    long limit() const
    {
-      long l_count, l_limit;
-      if(!winapi::get_semaphore_info(m_sem_hnd, l_count, l_limit))
+      long count, limit;
+      if(!winapi::get_semaphore_info(m_sem_hnd, count, limit))
          return 0;
-      return l_limit;
+      return limit;
    }
 
    /// @cond
@@ -136,7 +136,7 @@ class winapi_semaphore_wrapper
    {  this->close(); }
 
    void *release()
-   {
+   { 
       void *hnd = m_sem_hnd;
       m_sem_hnd = winapi::invalid_handle_value;
       return hnd;

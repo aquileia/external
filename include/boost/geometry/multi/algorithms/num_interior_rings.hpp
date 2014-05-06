@@ -20,7 +20,6 @@
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
@@ -35,7 +34,7 @@ namespace dispatch
 
 
 template <typename MultiPolygon>
-struct num_interior_rings<MultiPolygon, multi_polygon_tag>
+struct num_interior_rings<multi_polygon_tag, MultiPolygon>
 {
     static inline std::size_t apply(MultiPolygon const& multi_polygon)
     {

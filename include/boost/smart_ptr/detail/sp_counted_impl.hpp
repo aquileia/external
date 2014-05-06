@@ -83,11 +83,6 @@ public:
         return 0;
     }
 
-    virtual void * get_untyped_deleter()
-    {
-        return 0;
-    }
-
 #if defined(BOOST_SP_USE_STD_ALLOCATOR)
 
     void * operator new( std::size_t )
@@ -156,11 +151,6 @@ public:
     virtual void * get_deleter( detail::sp_typeinfo const & ti )
     {
         return ti == BOOST_SP_TYPEID(D)? &reinterpret_cast<char&>( del ): 0;
-    }
-
-    virtual void * get_untyped_deleter()
-    {
-        return &reinterpret_cast<char&>( del );
     }
 
 #if defined(BOOST_SP_USE_STD_ALLOCATOR)
@@ -235,11 +225,6 @@ public:
     virtual void * get_deleter( detail::sp_typeinfo const & ti )
     {
         return ti == BOOST_SP_TYPEID( D )? &reinterpret_cast<char&>( d_ ): 0;
-    }
-
-    virtual void * get_untyped_deleter()
-    {
-        return &reinterpret_cast<char&>( d_ );
     }
 };
 

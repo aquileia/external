@@ -1,4 +1,4 @@
-/* Copyright 2006-2013 Joaquin M Lopez Munoz.
+/* Copyright 2006-2010 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -103,7 +103,7 @@ public:
 
   refcounted_handle& operator=(refcounted_handle x)
   {
-    this->swap(x);
+    swap(*this,x);
     return *this;
   }
 
@@ -116,9 +116,9 @@ public:
 
   operator const Handle&()const{return h;}
 
-  void swap(refcounted_handle& x)
+  friend void swap(refcounted_handle& x, refcounted_handle& y)
   {
-    std::swap(h,x.h);
+    boost::swap(x.h,y.h);
   }
 
 private:
@@ -130,31 +130,7 @@ private:
   Handle h;
 };
 
-template<typename Handle,typename TrackingHelper>
-void swap(
-  refcounted_handle<Handle,TrackingHelper>& x,
-  refcounted_handle<Handle,TrackingHelper>& y)
-{
-  x.swap(y);
-}
-
 } /* namespace flyweights::detail */
-
-#if BOOST_WORKAROUND(BOOST_MSVC,<=1500)
-/* swap lookup by boost::swap fails under obscure circumstances */
-
-} /* namespace flyweights */
-
-template<typename Handle,typename TrackingHelper>
-void swap(
-  ::boost::flyweights::detail::refcounted_handle<Handle,TrackingHelper>& x,
-  ::boost::flyweights::detail::refcounted_handle<Handle,TrackingHelper>& y)
-{
-  ::boost::flyweights::detail::swap(x,y);
-}
-
-namespace flyweights{
-#endif
 
 struct refcounted:tracking_marker
 {

@@ -267,8 +267,7 @@ public:
 
   /// Notify the named_graph that we are removing the given
   /// vertex. This is a no-op.
-  template <typename VertexIterStability>
-  void removing_vertex(Vertex, VertexIterStability) { }
+  void removing_vertex(Vertex) { }
 
   /// Notify the named_graph that we are clearing the graph
   void clearing_graph() { }
@@ -481,6 +480,8 @@ private:
 template<BGL_NAMED_GRAPH_PARAMS>
 BGL_NAMED_GRAPH::lazy_add_edge::~lazy_add_edge()
 {
+  typedef typename BGL_NAMED_GRAPH::process_id_type process_id_type;
+
   using boost::parallel::detail::make_untracked_pair;
 
   /// If this edge has already been created or will be created by
@@ -677,6 +678,7 @@ private:
 template<BGL_NAMED_GRAPH_PARAMS>
 BGL_NAMED_GRAPH::lazy_add_edge_with_property::~lazy_add_edge_with_property()
 {
+  typedef typename BGL_NAMED_GRAPH::process_id_type process_id_type;
   using boost::detail::parallel::make_pair_with_property;
 
   /// If this edge has already been created or will be created by
@@ -1209,8 +1211,7 @@ public:
 
   /// Notify the named_graph that we are removing the given
   /// vertex. This is a no-op.
-  template <typename VertexIterStability>
-  void removing_vertex(Vertex, VertexIterStability) { }
+  void removing_vertex(Vertex) { }
 
   /// Notify the named_graph that we are clearing the graph
   void clearing_graph() { }

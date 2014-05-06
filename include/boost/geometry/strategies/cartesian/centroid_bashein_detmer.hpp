@@ -38,26 +38,17 @@ namespace strategy { namespace centroid
 
 
 /*!
-\brief Centroid calculation using algorithm Bashein / Detmer
+\brief Centroid calculation using algorith Bashein / Detmer
 \ingroup strategies
 \details Calculates centroid using triangulation method published by
     Bashein / Detmer
 \tparam Point point type of centroid to calculate
 \tparam PointOfSegment point type of segments, defaults to Point
-\tparam CalculationType \tparam_calculation
-
+\par Concepts for Point and PointOfSegment:
+- specialized point_traits class
 \author Adapted from  "Centroid of a Polygon" by
     Gerard Bashein and Paul R. Detmer<em>,
 in "Graphics Gems IV", Academic Press, 1994</em>
-
-
-\qbk{
-[heading See also]
-[link geometry.reference.algorithms.centroid.centroid_3_with_strategy centroid (with strategy)]
-}
-*/
-
-/*
 \par Research notes
 The algorithm gives the same results as Oracle and PostGIS but
     differs from MySQL
@@ -109,6 +100,12 @@ Statements:
         , mdsys.sdo_dim_array(mdsys.sdo_dim_element('x',0,10,.00000005)
         ,mdsys.sdo_dim_element('y',0,10,.00000005)))
         from dual
+
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.centroid.centroid_3_with_strategy centroid (with strategy)]
+}
+
  */
 template
 <
@@ -154,7 +151,9 @@ private :
             , sum_a2(calculation_type())
             , sum_x(calculation_type())
             , sum_y(calculation_type())
-        {}
+        {
+            typedef calculation_type ct;
+        }
     };
 
 public :

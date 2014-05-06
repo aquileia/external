@@ -571,7 +571,11 @@ namespace boost { namespace proto
 
             /// \param expr An expression
             /// \return \c e
-            BOOST_PROTO_RETURN_TYPE_STRICT_LOOSE(result_type, typename impl::expr_param)
+            #ifdef BOOST_PROTO_STRICT_RESULT_OF
+            result_type
+            #else
+            typename impl::expr_param 
+            #endif
             operator()(
                 typename impl::expr_param e
               , typename impl::state_param
@@ -616,7 +620,11 @@ namespace boost { namespace proto
             /// \param e An expression
             /// \pre <tt>matches\<Expr,not_\>::value</tt> is \c true.
             /// \return \c e
-            BOOST_PROTO_RETURN_TYPE_STRICT_LOOSE(result_type, typename impl::expr_param)
+            #ifdef BOOST_PROTO_STRICT_RESULT_OF
+            result_type
+            #else
+            typename impl::expr_param 
+            #endif
             operator()(
                 typename impl::expr_param e
               , typename impl::state_param

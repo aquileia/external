@@ -14,9 +14,6 @@
 #include <boost/geometry/multi/core/geometry_id.hpp>
 #include <boost/geometry/multi/core/is_areal.hpp>
 #include <boost/geometry/multi/core/point_order.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
-
 #include <boost/geometry/multi/algorithms/covered_by.hpp>
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
@@ -39,14 +36,14 @@ namespace detail { namespace intersection
 {
 
 
-template <typename PointOut>
+template
+<
+    typename MultiLinestring1, typename MultiLinestring2,
+    typename OutputIterator, typename PointOut,
+    typename Strategy
+>
 struct intersection_multi_linestring_multi_linestring_point
 {
-    template
-    <
-        typename MultiLinestring1, typename MultiLinestring2,
-        typename OutputIterator, typename Strategy
-    >
     static inline OutputIterator apply(MultiLinestring1 const& ml1,
             MultiLinestring2 const& ml2, OutputIterator out,
             Strategy const& strategy)
@@ -67,8 +64,12 @@ struct intersection_multi_linestring_multi_linestring_point
                 it2 != boost::end(ml2);
                 ++it2)
             {
-                out = intersection_linestring_linestring_point<PointOut>
-                      ::apply(*it1, *it2, out, strategy);
+                out = intersection_linestring_linestring_point
+                    <
+                        typename boost::range_value<MultiLinestring1>::type,
+                        typename boost::range_value<MultiLinestring2>::type,
+                        OutputIterator, PointOut, Strategy
+                    >::apply(*it1, *it2, out, strategy);
             }
         }
 
@@ -77,14 +78,14 @@ struct intersection_multi_linestring_multi_linestring_point
 };
 
 
-template <typename PointOut>
+template
+<
+    typename Linestring, typename MultiLinestring,
+    typename OutputIterator, typename PointOut,
+    typename Strategy
+>
 struct intersection_linestring_multi_linestring_point
 {
-    template
-    <
-        typename Linestring, typename MultiLinestring,
-        typename OutputIterator, typename Strategy
-    >
     static inline OutputIterator apply(Linestring const& linestring,
             MultiLinestring const& ml, OutputIterator out,
             Strategy const& strategy)
@@ -96,8 +97,12 @@ struct intersection_linestring_multi_linestring_point
             it != boost::end(ml);
             ++it)
         {
-            out = intersection_linestring_linestring_point<PointOut>
-                  ::apply(linestring, *it, out, strategy);
+            out = intersection_linestring_linestring_point
+                <
+                    Linestring,
+                    typename boost::range_value<MultiLinestring>::type,
+                    OutputIterator, PointOut, Strategy
+                >::apply(linestring, *it, out, strategy);
         }
 
         return out;
@@ -109,17 +114,14 @@ struct intersection_linestring_multi_linestring_point
 // is second (above) or first (below) argument, it is not trivial to merge them.
 template
 <
+    typename MultiLinestring, typename Areal,
     bool ReverseAreal,
-    typename LineStringOut,
-    overlay_type OverlayType
+    typename OutputIterator, typename LineStringOut,
+    overlay_type OverlayType,
+    typename Strategy
 >
 struct intersection_of_multi_linestring_with_areal
 {
-    template
-    <
-        typename MultiLinestring, typename Areal,
-        typename OutputIterator, typename Strategy
-    >
     static inline OutputIterator apply(MultiLinestring const& ml, Areal const& areal,
             OutputIterator out,
             Strategy const& strategy)
@@ -133,7 +135,9 @@ struct intersection_of_multi_linestring_with_areal
         {
             out = intersection_of_linestring_with_areal
                 <
-                    ReverseAreal, LineStringOut, OverlayType
+                    typename boost::range_value<MultiLinestring>::type,
+                    Areal, ReverseAreal,
+                    OutputIterator, LineStringOut, OverlayType, Strategy
                 >::apply(*it, areal, out, strategy);
         }
 
@@ -145,38 +149,38 @@ struct intersection_of_multi_linestring_with_areal
 // This one calls the one above with reversed arguments
 template
 <
+    typename Areal, typename MultiLinestring,
     bool ReverseAreal,
-    typename LineStringOut,
-    overlay_type OverlayType
+    typename OutputIterator, typename LineStringOut,
+    overlay_type OverlayType,
+    typename Strategy
 >
 struct intersection_of_areal_with_multi_linestring
 {
-    template
-    <
-        typename Areal, typename MultiLinestring,
-        typename OutputIterator, typename Strategy
-    >
     static inline OutputIterator apply(Areal const& areal, MultiLinestring const& ml,
             OutputIterator out,
             Strategy const& strategy)
     {
         return intersection_of_multi_linestring_with_areal
             <
-                ReverseAreal, LineStringOut, OverlayType
+                MultiLinestring, Areal, ReverseAreal,
+                OutputIterator, LineStringOut,
+                OverlayType,
+                Strategy
             >::apply(ml, areal, out, strategy);
     }
 };
 
 
 
-template <typename LinestringOut>
+template
+<
+    typename MultiLinestring, typename Box,
+    typename OutputIterator, typename LinestringOut,
+    typename Strategy
+>
 struct clip_multi_linestring
 {
-    template
-    <
-        typename MultiLinestring, typename Box,
-        typename OutputIterator, typename Strategy
-    >
     static inline OutputIterator apply(MultiLinestring const& multi_linestring,
             Box const& box, OutputIterator out, Strategy const& )
     {
@@ -207,21 +211,25 @@ namespace dispatch
 template
 <
     typename MultiLinestring1, typename MultiLinestring2,
-    typename GeometryOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    typename Strategy
 >
 struct intersection_insert
     <
-        MultiLinestring1, MultiLinestring2,
-        GeometryOut,
-        OverlayType,
-        Reverse1, Reverse2, ReverseOut,
         multi_linestring_tag, multi_linestring_tag, point_tag,
-        false, false, false
+        false, false, false,
+        MultiLinestring1, MultiLinestring2,
+        Reverse1, Reverse2, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
     > : detail::intersection::intersection_multi_linestring_multi_linestring_point
             <
-                GeometryOut
+                MultiLinestring1, MultiLinestring2,
+                OutputIterator, GeometryOut,
+                Strategy
             >
 {};
 
@@ -229,21 +237,25 @@ struct intersection_insert
 template
 <
     typename Linestring, typename MultiLinestring,
-    typename GeometryOut,
+    typename OutputIterator, typename GeometryOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    typename Strategy
 >
 struct intersection_insert
     <
-        Linestring, MultiLinestring,
-        GeometryOut,
-        OverlayType,
-        Reverse1, Reverse2, ReverseOut,
         linestring_tag, multi_linestring_tag, point_tag,
-        false, false, false
+        false, false, false,
+        Linestring, MultiLinestring,
+        Reverse1, Reverse2, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
     > : detail::intersection::intersection_linestring_multi_linestring_point
             <
-                GeometryOut
+                Linestring, MultiLinestring,
+                OutputIterator, GeometryOut,
+                Strategy
             >
 {};
 
@@ -251,21 +263,25 @@ struct intersection_insert
 template
 <
     typename MultiLinestring, typename Box,
-    typename GeometryOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    typename Strategy
 >
 struct intersection_insert
     <
-        MultiLinestring, Box,
-        GeometryOut,
-        OverlayType,
-        Reverse1, Reverse2, ReverseOut,
         multi_linestring_tag, box_tag, linestring_tag,
-        false, true, false
+        false, true, false,
+        MultiLinestring, Box,
+        Reverse1, Reverse2, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
     > : detail::intersection::clip_multi_linestring
             <
-                GeometryOut
+                MultiLinestring, Box,
+                OutputIterator, GeometryOut,
+                Strategy
             >
 {};
 
@@ -273,23 +289,27 @@ struct intersection_insert
 template
 <
     typename Linestring, typename MultiPolygon,
-    typename GeometryOut,
+    bool ReverseLinestring, bool ReverseMultiPolygon, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
     overlay_type OverlayType,
-    bool ReverseLinestring, bool ReverseMultiPolygon, bool ReverseOut
+    typename Strategy
 >
 struct intersection_insert
     <
-        Linestring, MultiPolygon,
-        GeometryOut,
-        OverlayType,
-        ReverseLinestring, ReverseMultiPolygon, ReverseOut,
         linestring_tag, multi_polygon_tag, linestring_tag,
-        false, true, false
+        false, true, false,
+        Linestring, MultiPolygon,
+        ReverseLinestring, ReverseMultiPolygon, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
     > : detail::intersection::intersection_of_linestring_with_areal
             <
+                Linestring, MultiPolygon,
                 ReverseMultiPolygon,
-                GeometryOut,
-                OverlayType
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
             >
 {};
 
@@ -299,23 +319,27 @@ struct intersection_insert
 template
 <
     typename Polygon, typename MultiLinestring,
-    typename GeometryOut,
+    bool ReversePolygon, bool ReverseMultiLinestring, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
     overlay_type OverlayType,
-    bool ReversePolygon, bool ReverseMultiLinestring, bool ReverseOut
+    typename Strategy
 >
 struct intersection_insert
     <
-        Polygon, MultiLinestring,
-        GeometryOut,
-        OverlayType,
-        ReversePolygon, ReverseMultiLinestring, ReverseOut,
         polygon_tag, multi_linestring_tag, linestring_tag,
-        true, false, false
+        true, false, false,
+        Polygon, MultiLinestring,
+        ReversePolygon, ReverseMultiLinestring, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
     > : detail::intersection::intersection_of_areal_with_multi_linestring
             <
+                Polygon, MultiLinestring,
                 ReversePolygon,
-                GeometryOut,
-                OverlayType
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
             >
 {};
 
@@ -323,46 +347,54 @@ struct intersection_insert
 template
 <
     typename MultiLinestring, typename Ring,
-    typename GeometryOut,
+    bool ReverseMultiLinestring, bool ReverseRing, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
     overlay_type OverlayType,
-    bool ReverseMultiLinestring, bool ReverseRing, bool ReverseOut
+    typename Strategy
 >
 struct intersection_insert
     <
-        MultiLinestring, Ring,
-        GeometryOut,
-        OverlayType,
-        ReverseMultiLinestring, ReverseRing, ReverseOut,
         multi_linestring_tag, ring_tag, linestring_tag,
-        false, true, false
+        false, true, false,
+        MultiLinestring, Ring,
+        ReverseMultiLinestring, ReverseRing, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
     > : detail::intersection::intersection_of_multi_linestring_with_areal
             <
+                MultiLinestring, Ring,
                 ReverseRing,
-                GeometryOut,
-                OverlayType
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
             >
 {};
 
 template
 <
     typename MultiLinestring, typename Polygon,
-    typename GeometryOut,
+    bool ReverseMultiLinestring, bool ReverseRing, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
     overlay_type OverlayType,
-    bool ReverseMultiLinestring, bool ReverseRing, bool ReverseOut
+    typename Strategy
 >
 struct intersection_insert
     <
-        MultiLinestring, Polygon,
-        GeometryOut,
-        OverlayType,
-        ReverseMultiLinestring, ReverseRing, ReverseOut,
         multi_linestring_tag, polygon_tag, linestring_tag,
-        false, true, false
+        false, true, false,
+        MultiLinestring, Polygon,
+        ReverseMultiLinestring, ReverseRing, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
     > : detail::intersection::intersection_of_multi_linestring_with_areal
             <
+                MultiLinestring, Polygon,
                 ReverseRing,
-                GeometryOut,
-                OverlayType
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
             >
 {};
 
@@ -371,23 +403,27 @@ struct intersection_insert
 template
 <
     typename MultiLinestring, typename MultiPolygon,
-    typename GeometryOut,
+    bool ReverseMultiLinestring, bool ReverseMultiPolygon, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
     overlay_type OverlayType,
-    bool ReverseMultiLinestring, bool ReverseMultiPolygon, bool ReverseOut
+    typename Strategy
 >
 struct intersection_insert
     <
-        MultiLinestring, MultiPolygon,
-        GeometryOut,
-        OverlayType,
-        ReverseMultiLinestring, ReverseMultiPolygon, ReverseOut,
         multi_linestring_tag, multi_polygon_tag, linestring_tag,
-        false, true, false
+        false, true, false,
+        MultiLinestring, MultiPolygon,
+        ReverseMultiLinestring, ReverseMultiPolygon, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
     > : detail::intersection::intersection_of_multi_linestring_with_areal
             <
+                MultiLinestring, MultiPolygon,
                 ReverseMultiPolygon,
-                GeometryOut,
-                OverlayType
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
             >
 {};
 

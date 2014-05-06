@@ -18,7 +18,7 @@
 
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
+
 
 #include <boost/geometry/multi/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
@@ -31,10 +31,9 @@ namespace boost { namespace geometry
 namespace detail { namespace simplify
 {
 
-template<typename Policy>
+template<typename MultiGeometry, typename Strategy, typename Policy>
 struct simplify_multi
 {
-    template <typename MultiGeometry, typename Strategy>
     static inline void apply(MultiGeometry const& multi, MultiGeometry& out,
                     double max_distance, Strategy const& strategy)
     {
@@ -64,21 +63,47 @@ struct simplify_multi
 namespace dispatch
 {
 
-template <typename MultiPoint>
-struct simplify<MultiPoint, multi_point_tag>
+template <typename MultiPoint, typename Strategy>
+struct simplify<multi_point_tag, MultiPoint, Strategy>
     : detail::simplify::simplify_copy
+        <
+            MultiPoint,
+            Strategy
+        >
+
 {};
 
 
-template <typename MultiLinestring>
-struct simplify<MultiLinestring, multi_linestring_tag>
-    : detail::simplify::simplify_multi<detail::simplify::simplify_range<2> >
+template <typename MultiLinestring, typename Strategy>
+struct simplify<multi_linestring_tag, MultiLinestring, Strategy>
+    : detail::simplify::simplify_multi
+        <
+            MultiLinestring,
+            Strategy,
+            detail::simplify::simplify_range
+                <
+                    typename boost::range_value<MultiLinestring>::type,
+                    Strategy,
+                    2
+                >
+        >
+
 {};
 
 
-template <typename MultiPolygon>
-struct simplify<MultiPolygon, multi_polygon_tag>
-    : detail::simplify::simplify_multi<detail::simplify::simplify_polygon>
+template <typename MultiPolygon, typename Strategy>
+struct simplify<multi_polygon_tag, MultiPolygon, Strategy>
+    : detail::simplify::simplify_multi
+        <
+            MultiPolygon,
+            Strategy,
+            detail::simplify::simplify_polygon
+                <
+                    typename boost::range_value<MultiPolygon>::type,
+                    Strategy
+                >
+        >
+
 {};
 
 

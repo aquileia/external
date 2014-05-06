@@ -106,11 +106,6 @@ namespace boost { namespace fusion
         vector(vector const& rhs)
             : vec(rhs.vec) {}
 
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-        vector(vector&& rhs)
-            : vec(std::forward<vector_n>(rhs.vec)) {}
-#endif
-
         template <typename Sequence>
         vector(Sequence const& rhs)
             : vec(BOOST_FUSION_VECTOR_COPY_INIT()) {}
@@ -139,30 +134,6 @@ namespace boost { namespace fusion
             vec = rhs;
             return *this;
         }
-
-        vector&
-        operator=(vector const& rhs)
-        {
-            vec = rhs.vec;
-            return *this;
-        }
-
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-        vector&
-        operator=(vector&& rhs)
-        {
-            vec = std::forward<vector_n>(rhs.vec);
-            return *this;
-        }
-
-        template <typename T>
-        vector&
-        operator=(T&& rhs)
-        {
-            vec = std::forward<T>(rhs);
-            return *this;
-        }
-#endif
 
         template <int N>
         typename add_reference<

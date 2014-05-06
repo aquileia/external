@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -56,7 +56,7 @@ class named_mutex
    /// @endcond
 
    public:
-   //!Creates a global mutex with a name.
+   //!Creates a global interprocess_mutex with a name.
    //!Throws interprocess_exception on error.
    named_mutex(create_only_t create_only, const char *name, const permissions &perm = permissions());
 
@@ -82,19 +82,19 @@ class named_mutex
    ~named_mutex();
 
    //!Unlocks a previously locked
-   //!mutex.
+   //!interprocess_mutex.
    void unlock();
 
-   //!Locks the mutex, sleeps when the mutex is already locked.
+   //!Locks interprocess_mutex, sleeps when interprocess_mutex is already locked.
    //!Throws interprocess_exception if a severe error is found
    void lock();
 
-   //!Tries to lock the mutex, returns false when the mutex
+   //!Tries to lock the interprocess_mutex, returns false when interprocess_mutex
    //!is already locked, returns true when success.
    //!Throws interprocess_exception if a severe error is found
    bool try_lock();
 
-   //!Tries to lock the the mutex until time abs_time,
+   //!Tries to lock the interprocess_mutex until time abs_time,
    //!Returns false when timeout expires, returns true when locks.
    //!Throws interprocess_exception if a severe error is found
    bool timed_lock(const boost::posix_time::ptime &abs_time);
@@ -108,20 +108,21 @@ class named_mutex
    friend class ipcdetail::interprocess_tester;
    void dont_close_on_destruction();
 
-   public:
    #if defined(BOOST_INTERPROCESS_USE_POSIX_SEMAPHORES)
-      typedef ipcdetail::posix_named_mutex      internal_mutex_type;
+      typedef ipcdetail::posix_named_mutex   impl_t;
+      impl_t m_mut;
       #undef BOOST_INTERPROCESS_USE_POSIX_SEMAPHORES
    #elif defined(BOOST_INTERPROCESS_USE_WINDOWS)
-      typedef ipcdetail::windows_named_mutex    internal_mutex_type;
+      typedef ipcdetail::windows_named_mutex   impl_t;
+      impl_t m_mut;
       #undef BOOST_INTERPROCESS_USE_WINDOWS
    #else
-      typedef ipcdetail::shm_named_mutex        internal_mutex_type;
+      typedef ipcdetail::shm_named_mutex     impl_t;
+      impl_t m_mut;
+      public:
+      interprocess_mutex *mutex() const
+      {  return m_mut.mutex(); }
    #endif
-   internal_mutex_type &internal_mutex()
-   {  return m_mut; }
-
-   internal_mutex_type m_mut;
 
    /// @endcond
 };
@@ -159,7 +160,7 @@ inline bool named_mutex::timed_lock(const boost::posix_time::ptime &abs_time)
 {  return m_mut.timed_lock(abs_time);  }
 
 inline bool named_mutex::remove(const char *name)
-{  return internal_mutex_type::remove(name);   }
+{  return impl_t::remove(name);   }
 
 /// @endcond
 

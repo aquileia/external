@@ -4,8 +4,8 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_CONTEXT_DETAIL_FCONTEXT_I386H
-#define BOOST_CONTEXT_DETAIL_FCONTEXT_I386H
+#ifndef BOOST_CTX_DETAIL_FCONTEXT_I386H
+#define BOOST_CTX_DETAIL_FCONTEXT_I386H
 
 #include <cstddef>
 
@@ -19,7 +19,7 @@
 #endif
 
 namespace boost {
-namespace context {
+namespace ctx {
 
 extern "C" {
 
@@ -27,11 +27,20 @@ extern "C" {
 
 struct stack_t
 {
-    void            *   sp;
-    std::size_t         size;
+    void    *   base;
+    void    *   limit;
 
     stack_t() :
-        sp( 0), size( 0)
+        base( 0), limit( 0)
+    {}
+};
+
+struct fp_t
+{
+    boost::uint32_t     fc_freg[2];
+
+    fp_t() :
+        fc_freg()
     {}
 };
 
@@ -39,12 +48,12 @@ struct fcontext_t
 {
     boost::uint32_t     fc_greg[6];
     stack_t             fc_stack;
-    boost::uint32_t     fc_freg[2];
+    fp_t                fc_fp;
 
     fcontext_t() :
         fc_greg(),
         fc_stack(),
-        fc_freg()
+        fc_fp()
     {}
 };
 
@@ -56,4 +65,4 @@ struct fcontext_t
 # include BOOST_ABI_SUFFIX
 #endif
 
-#endif // BOOST_CONTEXT_DETAIL_FCONTEXT_I386_H
+#endif // BOOST_CTX_DETAIL_FCONTEXT_I386_H

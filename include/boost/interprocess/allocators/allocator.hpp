@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -115,7 +115,7 @@ class allocator
    //!objects of type T2
    template<class T2>
    struct rebind
-   {
+   {  
       typedef allocator<T2, SegmentManager>     other;
    };
 
@@ -145,9 +145,8 @@ class allocator
    pointer allocate(size_type count, cvoid_ptr hint = 0)
    {
       (void)hint;
-      if(size_overflows<sizeof(T)>(count)){
+      if(count > this->max_size())
          throw bad_alloc();
-      }
       return pointer(static_cast<value_type*>(mp_mngr->allocate(count*sizeof(T))));
    }
 
@@ -170,7 +169,7 @@ class allocator
    //!pointed by p can hold. This size only works for memory allocated with
    //!allocate, allocation_command and allocate_many.
    size_type size(const pointer &p) const
-   {
+   { 
       return (size_type)mp_mngr->size(ipcdetail::to_raw_pointer(p))/sizeof(T);
    }
 
@@ -190,20 +189,19 @@ class allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. The elements must be deallocated
    //!with deallocate(...)
-   void allocate_many(size_type elem_size, size_type num_elements, multiallocation_chain &chain)
+   multiallocation_chain allocate_many
+      (size_type elem_size, size_type num_elements)
    {
-      if(size_overflows<sizeof(T)>(elem_size)){
-         throw bad_alloc();
-      }
-      mp_mngr->allocate_many(elem_size*sizeof(T), num_elements, chain);
+      return multiallocation_chain(mp_mngr->allocate_many(sizeof(T)*elem_size, num_elements));
    }
 
    //!Allocates n_elements elements, each one of size elem_sizes[i]in a
    //!contiguous block
    //!of memory. The elements must be deallocated
-   void allocate_many(const size_type *elem_sizes, size_type n_elements, multiallocation_chain &chain)
+   multiallocation_chain allocate_many
+      (const size_type *elem_sizes, size_type n_elements)
    {
-      mp_mngr->allocate_many(elem_sizes, n_elements, sizeof(T), chain);
+      multiallocation_chain(mp_mngr->allocate_many(elem_sizes, n_elements, sizeof(T)));
    }
 
    //!Allocates many elements of size elem_size in a contiguous block
@@ -212,8 +210,10 @@ class allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. The elements must be deallocated
    //!with deallocate(...)
-   void deallocate_many(multiallocation_chain &chain)
-   {  mp_mngr->deallocate_many(chain); }
+   void deallocate_many(multiallocation_chain chain)
+   {
+      return mp_mngr->deallocate_many(chain.extract_multiallocation_chain());
+   }
 
    //!Allocates just one object. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
@@ -227,8 +227,9 @@ class allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
-   void allocate_individual(size_type num_elements, multiallocation_chain &chain)
-   {  this->allocate_many(1, num_elements, chain); }
+   multiallocation_chain allocate_individual
+      (size_type num_elements)
+   {  return this->allocate_many(1, num_elements); }
 
    //!Deallocates memory previously allocated with allocate_one().
    //!You should never use deallocate_one to deallocate memory allocated
@@ -242,8 +243,8 @@ class allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
-   void deallocate_individual(multiallocation_chain &chain)
-   {  this->deallocate_many(chain); }
+   void deallocate_individual(multiallocation_chain chain)
+   {  return this->deallocate_many(boost::move(chain)); }
 
    //!Returns address of mutable object.
    //!Never throws

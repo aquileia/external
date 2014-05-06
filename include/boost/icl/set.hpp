@@ -18,8 +18,10 @@ Copyright (c) 2007-2011: Joachim Faulhaber
 #   include <set>
 #endif
 
-#include <boost/icl/associative_element_container.hpp>
-#include <boost/icl/functors.hpp>
+#include <boost/icl/concept/associative_element_container.hpp>
+
+
+}} // namespace icl boost
 
 #endif // BOOST_ICL_SET_HPP_JOFA_070519
 
