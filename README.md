@@ -27,12 +27,13 @@ bootstrap
 .\b2 -sZLIB_SOURCE=..\zlib-1.2.8 -sBZIP2_SOURCE=..\bzip2-1.0.6 -jN --with-locale --with-regex --with-filesystem --with-system --with-program_options --with-random --with-thread --with-iostreams --with-date_time
 ```
 with **N** being the number of cores in your CPU (e.g. `-j4` for a quad core).
+Depending on your boost version, you may need to replace `..\` with the absolute paths to zlib and bzip.
 If you have multiple versions of Visual Studio installed, you have to add `--toolset=msvc-X.0` with **X** being the target version number.
 
 Separate the required subset of the Boost source:
 ```
 .\b2 tools\bcp
-dist\bin\bcp.exe filesystem locale iostreams multi_index random regex serialization asio program_options system date_time ptr_container assign algorithm container exception iterator mpl math range ..\..\_include
+dist\bin\bcp.exe filesystem locale iostreams multi_index random regex serialization asio program_options system date_time ptr_container exception container mpl range assign algorithm math iterator test ..\..\_include
 ```
 
 Replace the outdated files in 'external/lib' with those from 'boost_.../stage/lib' and those in 'external/include/boost' with  the ones in '_include/boost'.
