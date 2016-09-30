@@ -24,14 +24,16 @@ Download and unpack the source of the libraries zlib, libbzip2, boost (version 1
 In the *Developer Command Prompt* that is installed with Visual Studio, go to the boost directory and type (with the correct paths of the other two libraries):
 ```
 bootstrap
-.\b2 -sZLIB_SOURCE=..\zlib-1.2.8 -sBZIP2_SOURCE=..\bzip2-1.0.6 -jN --with-locale --with-regex --with-filesystem --with-system --with-program_options --with-random --with-thread --with-iostreams --with-date_time
+.\b2 -sZLIB_SOURCE=..\zlib-1.2.8 -sBZIP2_SOURCE=..\bzip2-1.0.6 -jN --with-date_time --with-filesystem --with-iostreams --with-locale --with-program_options --with-random --with-regex --with-system --with-thread
 ```
 with **N** being the number of cores in your CPU (e.g. `-j4` for a quad core).
+Depending on your boost version, you may need to replace `..\` with the absolute paths to zlib and bzip.
+If you have multiple versions of Visual Studio installed, add `--toolset=msvc-X.0` with **X** being the target version number.
 
 Separate the required subset of the Boost source:
 ```
 .\b2 tools\bcp
-dist\bin\bcp.exe filesystem locale iostreams multi_index random regex serialization asio program_options system date_time ptr_container exception container mpl range assign algorithm math iterator ..\..\_include
+dist\bin\bcp.exe algorithm asio assign bimap container date_time dynamic_bitset exception filesystem iostreams iterator locale math mpl multi_array multi_index program_options ptr_container random range regex serialization system test boost\nondet_random.hpp ..\..\_include
 ```
 
 Replace the outdated files in 'external/lib' with those from 'boost_.../stage/lib' and those in 'external/include/boost' with  the ones in '_include/boost'.
