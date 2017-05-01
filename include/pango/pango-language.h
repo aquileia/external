@@ -25,30 +25,45 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include <pango/pango-version-macros.h>
+
 G_BEGIN_DECLS
 
 typedef struct _PangoLanguage PangoLanguage;
 
+/**
+ * PANGO_TYPE_LANGUAGE:
+ *
+ * The #GObject type for #PangoLanguage.
+ */
 #define PANGO_TYPE_LANGUAGE (pango_language_get_type ())
 
+PANGO_AVAILABLE_IN_ALL
 GType          pango_language_get_type    (void) G_GNUC_CONST;
+PANGO_AVAILABLE_IN_ALL
 PangoLanguage *pango_language_from_string (const char *language);
 
-G_CONST_RETURN char *pango_language_to_string   (PangoLanguage *language) G_GNUC_CONST;
+PANGO_AVAILABLE_IN_ALL
+const char    *pango_language_to_string   (PangoLanguage *language) G_GNUC_CONST;
 /* For back compat.  Will have to keep indefinitely. */
 #define pango_language_to_string(language) ((const char *)language)
 
-G_CONST_RETURN char *pango_language_get_sample_string (PangoLanguage *language) G_GNUC_CONST;
+PANGO_AVAILABLE_IN_ALL
+const char    *pango_language_get_sample_string (PangoLanguage *language) G_GNUC_CONST;
+PANGO_AVAILABLE_IN_1_16
 PangoLanguage *pango_language_get_default (void) G_GNUC_CONST;
 
+PANGO_AVAILABLE_IN_ALL
 gboolean      pango_language_matches  (PangoLanguage *language,
 				       const char *range_list) G_GNUC_PURE;
 
 #include <pango/pango-script.h>
 
+PANGO_AVAILABLE_IN_1_4
 gboolean		    pango_language_includes_script (PangoLanguage *language,
 							    PangoScript    script) G_GNUC_PURE;
-G_CONST_RETURN PangoScript *pango_language_get_scripts	   (PangoLanguage *language,
+PANGO_AVAILABLE_IN_1_22
+const PangoScript          *pango_language_get_scripts	   (PangoLanguage *language,
 							    int           *num_scripts);
 
 G_END_DECLS
