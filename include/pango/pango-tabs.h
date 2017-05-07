@@ -28,6 +28,12 @@ G_BEGIN_DECLS
 
 typedef struct _PangoTabArray PangoTabArray;
 
+/**
+ * PangoTabAlign:
+ * @PANGO_TAB_LEFT: the tab stop appears to the left of the text.
+ *
+ * A #PangoTabAlign specifies where a tab stop appears relative to the text.
+ */
 typedef enum
 {
   PANGO_TAB_LEFT
@@ -41,33 +47,49 @@ typedef enum
    */
 } PangoTabAlign;
 
+/**
+ * PANGO_TYPE_TAB_ARRAY:
+ *
+ * The #GObject type for #PangoTabArray.
+ */
 #define PANGO_TYPE_TAB_ARRAY (pango_tab_array_get_type ())
 
+PANGO_AVAILABLE_IN_ALL
 PangoTabArray  *pango_tab_array_new                 (gint           initial_size,
 						     gboolean       positions_in_pixels);
+PANGO_AVAILABLE_IN_ALL
 PangoTabArray  *pango_tab_array_new_with_positions  (gint           size,
 						     gboolean       positions_in_pixels,
 						     PangoTabAlign  first_alignment,
 						     gint           first_position,
 						     ...);
+PANGO_AVAILABLE_IN_ALL
 GType           pango_tab_array_get_type            (void) G_GNUC_CONST;
+PANGO_AVAILABLE_IN_ALL
 PangoTabArray  *pango_tab_array_copy                (PangoTabArray *src);
+PANGO_AVAILABLE_IN_ALL
 void            pango_tab_array_free                (PangoTabArray *tab_array);
+PANGO_AVAILABLE_IN_ALL
 gint            pango_tab_array_get_size            (PangoTabArray *tab_array);
+PANGO_AVAILABLE_IN_ALL
 void            pango_tab_array_resize              (PangoTabArray *tab_array,
 						     gint           new_size);
+PANGO_AVAILABLE_IN_ALL
 void            pango_tab_array_set_tab             (PangoTabArray *tab_array,
 						     gint           tab_index,
 						     PangoTabAlign  alignment,
 						     gint           location);
+PANGO_AVAILABLE_IN_ALL
 void            pango_tab_array_get_tab             (PangoTabArray *tab_array,
 						     gint           tab_index,
 						     PangoTabAlign *alignment,
 						     gint          *location);
+PANGO_AVAILABLE_IN_ALL
 void            pango_tab_array_get_tabs            (PangoTabArray *tab_array,
 						     PangoTabAlign **alignments,
 						     gint          **locations);
 
+PANGO_AVAILABLE_IN_ALL
 gboolean        pango_tab_array_get_positions_in_pixels (PangoTabArray *tab_array);
 
 

@@ -13,19 +13,17 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
 
+#ifndef __G_VFS_H__
+#define __G_VFS_H__
+
 #if !defined (__GIO_GIO_H_INSIDE__) && !defined (GIO_COMPILATION)
 #error "Only <gio/gio.h> can be included directly."
 #endif
-
-#ifndef __G_VFS_H__
-#define __G_VFS_H__
 
 #include <gio/giotypes.h>
 
@@ -39,10 +37,32 @@ G_BEGIN_DECLS
 #define G_IS_VFS_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), G_TYPE_VFS))
 
 /**
+ * GVfsFileLookupFunc:
+ * @vfs: a #GVfs
+ * @identifier: the identifier to lookup a #GFile for. This can either
+ *     be an URI or a parse name as returned by g_file_get_parse_name()
+ * @user_data: user data passed to the function
+ *
+ * This function type is used by g_vfs_register_uri_scheme() to make it
+ * possible for a client to associate an URI scheme to a different #GFile
+ * implementation.
+ *
+ * The client should return a reference to the new file that has been
+ * created for @uri, or %NULL to continue with the default implementation.
+ *
+ * Returns: (transfer full): a #GFile for @identifier.
+ *
+ * Since: 2.50
+ */
+typedef GFile * (* GVfsFileLookupFunc) (GVfs       *vfs,
+                                        const char *identifier,
+                                        gpointer    user_data);
+
+/**
  * G_VFS_EXTENSION_POINT_NAME:
  *
  * Extension point for #GVfs functionality.
- * See <link linkend="extending-gio">Extending GIO</link>.
+ * See [Extending GIO][extending-gio].
  */
 #define G_VFS_EXTENSION_POINT_NAME "gio-vfs"
 
@@ -95,6 +115,8 @@ struct _GVfsClass
   void                  (* local_file_moved)          (GVfs       *vfs,
 						       const char *source,
 						       const char *dest);
+  GIcon *               (* deserialize_icon)          (GVfs       *vfs,
+                                                       GVariant   *value);
   /* Padding for future expansion */
   void (*_g_reserved1) (void);
   void (*_g_reserved2) (void);
@@ -102,23 +124,44 @@ struct _GVfsClass
   void (*_g_reserved4) (void);
   void (*_g_reserved5) (void);
   void (*_g_reserved6) (void);
-  void (*_g_reserved7) (void);
 };
 
+GLIB_AVAILABLE_IN_ALL
 GType                 g_vfs_get_type                  (void) G_GNUC_CONST;
 
+GLIB_AVAILABLE_IN_ALL
 gboolean              g_vfs_is_active                 (GVfs       *vfs);
+GLIB_AVAILABLE_IN_ALL
 GFile *               g_vfs_get_file_for_path         (GVfs       *vfs,
                                                        const char *path);
+GLIB_AVAILABLE_IN_ALL
 GFile *               g_vfs_get_file_for_uri          (GVfs       *vfs,
                                                        const char *uri);
+GLIB_AVAILABLE_IN_ALL
 const gchar* const * g_vfs_get_supported_uri_schemes  (GVfs       *vfs);
 
+GLIB_AVAILABLE_IN_ALL
 GFile *               g_vfs_parse_name                (GVfs       *vfs,
                                                        const char *parse_name);
 
+GLIB_AVAILABLE_IN_ALL
 GVfs *                g_vfs_get_default               (void);
+GLIB_AVAILABLE_IN_ALL
 GVfs *                g_vfs_get_local                 (void);
+
+GLIB_AVAILABLE_IN_2_50
+gboolean              g_vfs_register_uri_scheme       (GVfs               *vfs,
+                                                       const char         *scheme,
+                                                       GVfsFileLookupFunc  uri_func,
+                                                       gpointer            uri_data,
+                                                       GDestroyNotify      uri_destroy,
+                                                       GVfsFileLookupFunc  parse_name_func,
+                                                       gpointer            parse_name_data,
+                                                       GDestroyNotify      parse_name_destroy);
+GLIB_AVAILABLE_IN_2_50
+gboolean              g_vfs_unregister_uri_scheme     (GVfs               *vfs,
+                                                       const char         *scheme);
+
 
 G_END_DECLS
 

@@ -94,14 +94,32 @@ typedef enum {
 #define PANGO_GRAVITY_IS_VERTICAL(gravity) \
 	((gravity) == PANGO_GRAVITY_EAST || (gravity) == PANGO_GRAVITY_WEST)
 
+/**
+ * PANGO_GRAVITY_IS_IMPROPER:
+ * @gravity: the #PangoGravity to check
+ *
+ * Whether a #PangoGravity represents a gravity that results in reversal of text direction.
+ *
+ * Returns: %TRUE if @gravity is %PANGO_GRAVITY_WEST or %PANGO_GRAVITY_NORTH,
+ *          %FALSE otherwise.
+ *
+ * Since: 1.32
+ **/
+#define PANGO_GRAVITY_IS_IMPROPER(gravity) \
+	((gravity) == PANGO_GRAVITY_WEST || (gravity) == PANGO_GRAVITY_NORTH)
+
 #include <pango/pango-matrix.h>
 #include <pango/pango-script.h>
 
+PANGO_AVAILABLE_IN_1_16
 double       pango_gravity_to_rotation    (PangoGravity       gravity) G_GNUC_CONST;
+PANGO_AVAILABLE_IN_1_16
 PangoGravity pango_gravity_get_for_matrix (const PangoMatrix *matrix) G_GNUC_PURE;
+PANGO_AVAILABLE_IN_1_16
 PangoGravity pango_gravity_get_for_script (PangoScript        script,
 					   PangoGravity       base_gravity,
 					   PangoGravityHint   hint) G_GNUC_CONST;
+PANGO_AVAILABLE_IN_1_26
 PangoGravity pango_gravity_get_for_script_and_width
 					  (PangoScript        script,
 					   gboolean           wide,
