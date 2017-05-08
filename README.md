@@ -24,7 +24,7 @@ Download and unpack the source of the libraries zlib, libbzip2, boost (version 1
 In the *Developer Command Prompt* that is installed with Visual Studio, go to the boost directory and type (with the correct paths of the other two libraries):
 ```
 bootstrap
-.\b2 -sZLIB_SOURCE=..\zlib-1.2.8 -sBZIP2_SOURCE=..\bzip2-1.0.6 -jN --with-date_time --with-filesystem --with-iostreams --with-locale --with-program_options --with-random --with-regex --with-system --with-thread
+.\b2 -sZLIB_SOURCE=..\zlib-1.2.8 -sBZIP2_SOURCE=..\bzip2-1.0.6 -jN --with-date_time --with-filesystem --with-iostreams --with-locale --with-program_options --with-random --with-regex --with-system --with-test --with-thread
 ```
 with **N** being the number of cores in your CPU (e.g. `-j4` for a quad core).
 Depending on your boost version, you may need to replace `..\` with the absolute paths to zlib and bzip.
