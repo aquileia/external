@@ -33,7 +33,7 @@ If you have multiple versions of Visual Studio installed, add `--toolset=msvc-X.
 Separate the required subset of the Boost source:
 ```
 .\b2 tools\bcp
-dist\bin\bcp.exe algorithm asio assign bimap container date_time dynamic_bitset exception filesystem iostreams iterator locale math mpl multi_array multi_index program_options ptr_container random range regex serialization system test boost\nondet_random.hpp ..\..\_include
+dist\bin\bcp.exe algorithm asio assign bimap container date_time dynamic_bitset exception filesystem fusion iostreams iterator locale math mpl multi_array multi_index phoenix program_options ptr_container random range regex serialization spirit system test boost\nondet_random.hpp ..\..\_include
 ```
 
 Replace the outdated files in 'external/lib' with those from 'boost_.../stage/lib' and those in 'external/include/boost' with  the ones in '_include/boost'.
