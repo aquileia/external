@@ -7,41 +7,42 @@
  * https://www.openssl.org/source/license.html
  */
 
-#ifndef HEADER_MD5_H
-# define HEADER_MD5_H
+#ifndef HEADER_MD4_H
+# define HEADER_MD4_H
 
 # include <openssl/opensslconf.h>
 
-# ifndef OPENSSL_NO_MD5
+# ifndef OPENSSL_NO_MD4
 # include <openssl/e_os2.h>
 # include <stddef.h>
 # ifdef  __cplusplus
 extern "C" {
 # endif
 
-/*
+/*-
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * ! MD5_LONG has to be at least 32 bits wide.                     !
+ * ! MD4_LONG has to be at least 32 bits wide.                     !
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-# define MD5_LONG unsigned int
+# define MD4_LONG unsigned int
 
-# define MD5_CBLOCK      64
-# define MD5_LBLOCK      (MD5_CBLOCK/4)
-# define MD5_DIGEST_LENGTH 16
+# define MD4_CBLOCK      64
+# define MD4_LBLOCK      (MD4_CBLOCK/4)
+# define MD4_DIGEST_LENGTH 16
 
-typedef struct MD5state_st {
-    MD5_LONG A, B, C, D;
-    MD5_LONG Nl, Nh;
-    MD5_LONG data[MD5_LBLOCK];
+typedef struct MD4state_st {
+    MD4_LONG A, B, C, D;
+    MD4_LONG Nl, Nh;
+    MD4_LONG data[MD4_LBLOCK];
     unsigned int num;
-} MD5_CTX;
+} MD4_CTX;
 
-int MD5_Init(MD5_CTX *c);
-int MD5_Update(MD5_CTX *c, const void *data, size_t len);
-int MD5_Final(unsigned char *md, MD5_CTX *c);
-unsigned char *MD5(const unsigned char *d, size_t n, unsigned char *md);
-void MD5_Transform(MD5_CTX *c, const unsigned char *b);
+int MD4_Init(MD4_CTX *c);
+int MD4_Update(MD4_CTX *c, const void *data, size_t len);
+int MD4_Final(unsigned char *md, MD4_CTX *c);
+unsigned char *MD4(const unsigned char *d, size_t n, unsigned char *md);
+void MD4_Transform(MD4_CTX *c, const unsigned char *b);
+
 # ifdef  __cplusplus
 }
 # endif
