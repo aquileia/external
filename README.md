@@ -39,4 +39,4 @@ dist\bin\bcp.exe algorithm asio assign bimap container date_time dynamic_bitset 
 Replace the outdated files in 'external/lib' with those from 'boost_.../stage/lib' and those in 'external/include/boost' with  the ones in '_include/boost'.
 
 ### Note for non-Visual Studio users
-Boost may also be build using this method in the regular Windows Command Prompt, though a different toolset needs to be specified (such as `--toolset=gcc`) and `.\b2` must be invoked as an executable (`b2.exe`).
+Boost may also be built using this method in the regular Windows Command Prompt, though a different toolset needs to be specified (such as `--toolset=gcc`) and `.\b2` must be invoked as an executable (`b2.exe`).
